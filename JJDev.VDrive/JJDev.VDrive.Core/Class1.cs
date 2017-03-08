@@ -14,5 +14,15 @@ namespace JJDev.VDrive.Core
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern int QueryDosDevice(string devname, StringBuilder buffer, int bufSize);
+
+        
+        public static List<string> AvailableDrives
+        {
+            get
+            {
+                var drives = new List<string>();
+                return drives;
+            }
+        }
     }
 }
