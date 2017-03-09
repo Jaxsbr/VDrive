@@ -18,12 +18,17 @@ namespace JJDev.VDrive.Core
 
         
         public static List<string> AvailableDrives()
-        {            
+        {
             var drives = new List<string>();
             var letters = GenerateDriveLetters();
-
-
-            return drives;            
+            foreach (var letter in letters)
+            {
+                if (DriveValid(letter))
+                {
+                    drives.Add(letter);
+                }
+            }
+            return drives;
         }
 
         public static List<string> GenerateDriveLetters()
@@ -37,12 +42,8 @@ namespace JJDev.VDrive.Core
             {
                 // Convert alphabet index to upper case drive letter.
                 var letterVal = (Char)(i + upperCase);
-                letter = $"{letterVal.ToString()}:";
-
-                if (DriveValid(letter))
-                {
-                    letters.Add(letter);
-                }                
+                letter = $"{letterVal.ToString()}:";                
+                letters.Add(letter);                
             }
             
             return letters;
