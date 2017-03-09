@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ using System.ComponentModel;
 
 namespace JJDev.VDrive.Core
 {
-    public class Class1
+    public class DriveMaster
     {
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern bool DefineDosDevice(int flags, string devname, string path);
@@ -17,9 +18,15 @@ namespace JJDev.VDrive.Core
         private static extern int QueryDosDevice(string devname, StringBuilder buffer, int bufSize);
 
         
-        public static List<string> AvailableDrives()
+        public static List<string> AvailableDrives(bool win32 = false)
         {
             var drives = new List<string>();
+            if (!win32)
+            {
+                drives = Directory.GetLogicalDrives().ToList();
+                return drives;
+            }
+            
             var letters = GenerateDriveLetters();
             foreach (var letter in letters)
             {
