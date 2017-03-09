@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.ComponentModel;
 
 namespace JJDev.VDrive.Core
 {
@@ -30,16 +31,36 @@ namespace JJDev.VDrive.Core
             var letters = new List<string>();
             var range = 26;
             var upperCase = 65; // 65 upper | 97 lower
-            char letter;
+            string letter;
 
             for (int i = 0; i < range; i++)
             {
                 // Convert alphabet index to upper case drive letter.
-                letter = (Char)(i + upperCase);
-                letters.Add($"{letter.ToString()}:");
+                var letterVal = (Char)(i + upperCase);
+                letter = $"{letterVal.ToString()}:";
+
+                if (DriveValid(letter))
+                {
+                    letters.Add(letter);
+                }                
             }
             
             return letters;
+        }
+
+        public static bool DriveValid(string letter)
+        {            
+            var buffer = new StringBuilder(256);
+            if (QueryDosDevice(letter, buffer, buffer.Capacity) == 0)
+            {
+                var error = Marshal.GetLastWin32Error();
+                if (error == 2)
+                {
+                    return false;
+                }
+                throw new Win32Exception();
+            }
+            return true;
         }
     }
 }
