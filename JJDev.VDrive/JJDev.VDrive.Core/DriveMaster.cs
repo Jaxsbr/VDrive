@@ -15,7 +15,7 @@ namespace JJDev.VDrive.Core
         private static extern bool DefineDosDevice(int flags, string devname, string path);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern int QueryDosDevice(string devname, StringBuilder buffer, int bufSize);
+        private static extern int QueryDosDevice(string letter, StringBuilder buffer, int capacity);
 
         
         public static List<string> AvailableDrives(bool win32 = false)
@@ -23,6 +23,7 @@ namespace JJDev.VDrive.Core
             var drives = new List<string>();
             if (!win32)
             {
+                // Gets mounted disk partitions, Not physical drives.
                 drives = Directory.GetLogicalDrives().ToList();
                 return drives;
             }
