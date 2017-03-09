@@ -1,8 +1,0 @@
-C:\Jaco\00.DEV\VDrive\JJDev.VDrive\JJDev.VDrive.UnitTests\bin\Debug\JJDev.VDrive.UnitTests.dll
-C:\Jaco\00.DEV\VDrive\JJDev.VDrive\JJDev.VDrive.UnitTests\bin\Debug\JJDev.VDrive.UnitTests.pdb
-C:\Jaco\00.DEV\VDrive\JJDev.VDrive\JJDev.VDrive.UnitTests\bin\Debug\JJDev.VDrive.Core.dll
-C:\Jaco\00.DEV\VDrive\JJDev.VDrive\JJDev.VDrive.UnitTests\bin\Debug\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll
-C:\Jaco\00.DEV\VDrive\JJDev.VDrive\JJDev.VDrive.UnitTests\bin\Debug\JJDev.VDrive.Core.pdb
-C:\Jaco\00.DEV\VDrive\JJDev.VDrive\JJDev.VDrive.UnitTests\obj\Debug\JJDev.VDrive.UnitTests.csprojResolveAssemblyReference.cache
-C:\Jaco\00.DEV\VDrive\JJDev.VDrive\JJDev.VDrive.UnitTests\obj\Debug\JJDev.VDrive.UnitTests.dll
-C:\Jaco\00.DEV\VDrive\JJDev.VDrive\JJDev.VDrive.UnitTests\obj\Debug\JJDev.VDrive.UnitTests.pdb

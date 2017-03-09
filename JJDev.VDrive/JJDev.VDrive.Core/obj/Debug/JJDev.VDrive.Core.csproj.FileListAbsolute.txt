@@ -1,5 +1,0 @@
-C:\Jaco\00.DEV\VDrive\JJDev.VDrive\JJDev.VDrive.Core\bin\Debug\JJDev.VDrive.Core.dll
-C:\Jaco\00.DEV\VDrive\JJDev.VDrive\JJDev.VDrive.Core\bin\Debug\JJDev.VDrive.Core.pdb
-C:\Jaco\00.DEV\VDrive\JJDev.VDrive\JJDev.VDrive.Core\obj\Debug\JJDev.VDrive.Core.csprojResolveAssemblyReference.cache
-C:\Jaco\00.DEV\VDrive\JJDev.VDrive\JJDev.VDrive.Core\obj\Debug\JJDev.VDrive.Core.dll
-C:\Jaco\00.DEV\VDrive\JJDev.VDrive\JJDev.VDrive.Core\obj\Debug\JJDev.VDrive.Core.pdb
