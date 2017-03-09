@@ -12,5 +12,5 @@ TODO:
 
 * 20170308 | Create simple UI (add and remove virtual drives)
 
-* 20170308 | Update git ignore (VS & binnary files)
+# 20170308 | Update git ignore (VS & binnary files)
 
