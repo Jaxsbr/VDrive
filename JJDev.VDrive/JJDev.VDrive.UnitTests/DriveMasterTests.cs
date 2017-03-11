@@ -26,6 +26,38 @@ namespace JJDev.VDrive.UnitTests
         }
 
         [TestMethod]
+        public void GetDriveLettersTest_ShouldNot_ContainForwardSlash()
+        {
+            // Arrange
+            var forwardSlash = "/";
+            var results = new List<string>();
+            var errorCount = 0;
+
+            // Act            
+            results = DriveMaster.GenerateDriveLetters();
+            results.ForEach(d => { if (d.Contains(forwardSlash)) errorCount++; });
+
+            // Assert
+            Assert.IsTrue(errorCount == 0, "Forward slash must not be present in generated drive letters");
+        }
+
+        [TestMethod]
+        public void AvailableDrivesTest_ShouldReturn_LogicalDrivesWithoutForwardSlash()
+        {
+            // Arrange
+            var forwardSlash = "/";
+            var results = new List<string>();
+            var errorCount = 0;
+
+            // Act            
+            results = DriveMaster.AvailableDrives(false);
+            results.ForEach(d => { if (d.Contains(forwardSlash)) errorCount++; });
+
+            // Assert
+            Assert.IsFalse(errorCount > 0, "Forward slash not removed from logical drives");
+        }
+
+        [TestMethod]
         public void DriveValidTest_ShouldReturn_CDrive()
         {
             // Save assumption as most pcs have a C drive.

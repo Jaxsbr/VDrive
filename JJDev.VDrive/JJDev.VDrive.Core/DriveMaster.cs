@@ -12,12 +12,33 @@ namespace JJDev.VDrive.Core
     public class DriveMaster
     {
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern bool DefineDosDevice(int flags, string devname, string path);
+        private static extern bool DefineDosDevice(int flags, string driveLetter, string drivePath);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern int QueryDosDevice(string letter, StringBuilder buffer, int capacity);
 
-        
+        /// <summary>
+        /// Create a virtual drive and map it to a drive letter
+        /// </summary>
+        /// <param name="driveLetter">The name of the virtual drive</param>
+        /// <param name="drivePath">File storage path or the virtual drive</param>
+        public static void MapDrive(string driveLetter, string drivePath)
+        {
+            if (DefineDosDevice(0, driveLetter, drivePath))
+            {
+                // Drive mapped
+                // TODO:
+                // Double check that win32 method succeeded
+            }
+            else
+            {
+                // Did no map
+                // TODO:
+                // Fail with grace.
+                throw new Win32Exception();
+            }
+        }
+
         public static List<string> AvailableDrives(bool win32 = false)
         {
             var drives = new List<string>();
@@ -25,6 +46,7 @@ namespace JJDev.VDrive.Core
             {
                 // Gets mounted disk partitions, Not physical drives.
                 drives = Directory.GetLogicalDrives().ToList();
+                drives.ForEach(d => d.Replace("/", string.Empty));
                 return drives;
             }
             
