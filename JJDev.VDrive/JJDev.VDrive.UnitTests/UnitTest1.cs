@@ -17,7 +17,7 @@ namespace JJDev.VDrive.UnitTests
             List<string> result;
 
             // Act
-            result = Class1.GenerateDriveLetters();
+            result = DriveMaster.GenerateDriveLetters();
 
             // Assert
             Assert.IsTrue(result.Count == 26, "Letters count is incorrect");
@@ -36,7 +36,7 @@ namespace JJDev.VDrive.UnitTests
             var result = false;
 
             // Act
-            result = Class1.DriveValid(drive);
+            result = DriveMaster.DriveValid(drive);
 
             // Assert
             Assert.IsTrue(result, "Valid C drive not found");
@@ -54,7 +54,7 @@ namespace JJDev.VDrive.UnitTests
             var result = false;
 
             // Act
-            result = Class1.DriveValid(drive);
+            result = DriveMaster.DriveValid(drive);
 
             // Assert
             Assert.IsTrue(!result, "Invalid Z drive should not have been found");
