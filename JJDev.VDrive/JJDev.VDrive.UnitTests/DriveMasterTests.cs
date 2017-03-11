@@ -6,7 +6,7 @@ using JJDev.VDrive.Core;
 namespace JJDev.VDrive.UnitTests
 {
     [TestClass]
-    public class UnitTest1
+    public class DriveMasterTests
     {
         [TestMethod]
         public void GetDriveLettersTest_ShouldReturn_AllAlphabetLetterInSequence()
