@@ -26,10 +26,10 @@ namespace JJDev.VDrive.UnitTests
         }
 
         [TestMethod]
-        public void GetDriveLettersTest_ShouldNot_ContainForwardSlash()
+        public void GetDriveLettersTest_ShouldNot_ContainBackwardSlash()
         {
             // Arrange
-            var forwardSlash = "/";
+            var forwardSlash = "\\";
             var results = new List<string>();
             var errorCount = 0;
 
@@ -38,14 +38,14 @@ namespace JJDev.VDrive.UnitTests
             results.ForEach(d => { if (d.Contains(forwardSlash)) errorCount++; });
 
             // Assert
-            Assert.IsTrue(errorCount == 0, "Forward slash must not be present in generated drive letters");
+            Assert.IsTrue(errorCount == 0, "Backward slash must not be present in generated drive letters");
         }
 
         [TestMethod]
-        public void AvailableDrivesTest_ShouldReturn_LogicalDrivesWithoutForwardSlash()
+        public void AvailableDrivesTest_ShouldReturn_LogicalDrivesWithoutBackwardSlash()
         {
             // Arrange
-            var forwardSlash = "/";
+            var forwardSlash = "\\";
             var results = new List<string>();
             var errorCount = 0;
 
@@ -54,7 +54,7 @@ namespace JJDev.VDrive.UnitTests
             results.ForEach(d => { if (d.Contains(forwardSlash)) errorCount++; });
 
             // Assert
-            Assert.IsFalse(errorCount > 0, "Forward slash not removed from logical drives");
+            Assert.IsFalse(errorCount > 0, "Backward slash not removed from logical drives");
         }
 
         [TestMethod]

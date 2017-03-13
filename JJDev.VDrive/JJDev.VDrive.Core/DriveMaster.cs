@@ -26,15 +26,41 @@ namespace JJDev.VDrive.Core
         {
             if (DefineDosDevice(0, driveLetter, drivePath))
             {
-                // Drive mapped
-                // TODO:
+                // Drive mapped                
                 // Double check that win32 method succeeded
+                var directory = new DirectoryInfo(driveLetter);
+                if (directory == null)
+                {
+                    // Failed to map
+                }
             }
             else
             {
-                // Did no map
-                // TODO:
-                // Fail with grace.
+                // Did not map
+                throw new Win32Exception();
+            }
+        }
+
+        /// <summary>
+        /// Remove existing virtual drive
+        /// </summary>
+        /// <param name="driveLetter">The name of the virtual drive</param>
+        public static void UnMapDrive(string driveLetter)
+        {
+            var directory = new DirectoryInfo(driveLetter);
+            if (directory == null)
+            {
+                // Nothing to un-map
+                return;
+            }
+
+            if (DefineDosDevice(2, driveLetter, null))
+            {
+                // Drive un-mapped
+            }
+            else
+            {
+                // Did not un-map
                 throw new Win32Exception();
             }
         }
@@ -46,7 +72,7 @@ namespace JJDev.VDrive.Core
             {
                 // Gets mounted disk partitions, Not physical drives.
                 drives = Directory.GetLogicalDrives().ToList();
-                drives.ForEach(d => d.Replace("/", string.Empty));
+                drives = drives.Select(d => d.Replace("\\", string.Empty)).ToList();
                 return drives;
             }
             
