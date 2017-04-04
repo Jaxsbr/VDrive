@@ -1,18 +1,42 @@
 # VDrive
-Virtual drive management app
 
-* Pending
-@ Done
+Virtual drive management app. 
+Allow user to create virtual drives that they can secure with password.
+Also allow copy/paste and mounting drive and any machine.
 
-TODO:
+***
+***Status Symbols***
+- ** ! Pending
+- ** @ Done
 
-@ 20170308 | Create wrapper for unmanaged code (manage virtual drives)
+***
 
-* 20170308 | Unit test wrapper
+***Phase 1 - 20170308***
 
-* 20170308 | Create simple UI (add and remove virtual drives)
+@ Create wrapper for unmanaged code (manage virtual drives)
 
-@ 20170308 | Update git ignore (VS & binnary files)
+@ Unit tests
 
-* 20170313 | Create xml style comments for wrapper methods
+@ Create simple UI (add and remove virtual drives)
 
+@ Update git ignore (VS & binnary files)
+
+! Create xml style comments for wrapper methods
+
+***
+
+***Phase 2 - 20170404***
+
+! Create file in use strategy
+
+! Implement hashing lib
+
+! Create drive untampered check using hash file
+
+! Implement crypto lib
+
+! Create drive/file cryption strategy
+
+! Drive modes: MacId or AnyMac
+
+***
