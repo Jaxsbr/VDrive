@@ -6,8 +6,8 @@ Also allow copy/paste and mounting drive and any machine.
 
 ***
 ***Status Symbols***
-- ? **Pending
-- @ **Done
+- ? **Pending**
+- @ **Done**
 
 ***
 
