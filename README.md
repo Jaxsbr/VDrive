@@ -6,8 +6,8 @@ Also allow copy/paste and mounting drive and any machine.
 
 ***
 ***Status Symbols***
-- ** ! Pending
-- ** @ Done
+- ? **Pending
+- @ **Done
 
 ***
 
@@ -21,22 +21,22 @@ Also allow copy/paste and mounting drive and any machine.
 
 @ Update git ignore (VS & binnary files)
 
-! Create xml style comments for wrapper methods
+? Create xml style comments for wrapper methods
 
 ***
 
 ***Phase 2 - 20170404***
 
-! Create file in use strategy
+? Create file in use strategy
 
-! Implement hashing lib
+? Implement hashing lib
 
-! Create drive untampered check using hash file
+? Create drive untampered check using hash file
 
-! Implement crypto lib
+? Implement crypto lib
 
-! Create drive/file cryption strategy
+? Create drive/file cryption strategy
 
-! Drive modes: MacId or AnyMac
+? Drive modes: MacId or AnyMac
 
 ***
