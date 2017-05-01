@@ -21,8 +21,6 @@ Also allow copy/paste and mounting drive and any machine.
 
 @ Update git ignore (VS & binnary files)
 
-? Create xml style comments for wrapper methods
-
 ***
 
 ***Phase 2 - 20170404***
