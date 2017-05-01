@@ -27,6 +27,8 @@ Also allow copy/paste and mounting drive and any machine.
 
 ***Phase 2 - 20170404***
 
+? Open/Close encrypted drive contents
+
 ? Create file in use strategy
 
 ? Implement hashing lib
@@ -38,5 +40,11 @@ Also allow copy/paste and mounting drive and any machine.
 ? Create drive/file cryption strategy
 
 ? Drive modes: MacId or AnyMac
+
+***
+
+***Phase 3 - 20170501***
+
+? Fix unmap bug - Windows explorer not refreshing unmapped drive(remains visible)
 
 ***
