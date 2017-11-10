@@ -17,52 +17,16 @@ namespace JJDev.VDrive.Core
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern int QueryDosDevice(string letter, StringBuilder buffer, int capacity);
 
-        /// <summary>
-        /// Create a virtual drive and map it to a drive letter
-        /// </summary>
-        /// <param name="driveLetter">The name of the virtual drive</param>
-        /// <param name="drivePath">File storage path or the virtual drive</param>
         public static void MapDrive(string driveLetter, string drivePath)
         {
-            if (DefineDosDevice(0, driveLetter, drivePath))
-            {
-                // Drive mapped                
-                // Double check that win32 method succeeded
-                var directory = new DirectoryInfo(driveLetter);
-                if (directory == null)
-                {
-                    // Failed to map
-                }
-            }
-            else
-            {
-                // Did not map
-                throw new Win32Exception();
-            }
+            if (!DefineDosDevice(0, driveLetter, drivePath)) { throw new Win32Exception(); }           
         }
 
-        /// <summary>
-        /// Remove existing virtual drive
-        /// </summary>
-        /// <param name="driveLetter">The name of the virtual drive</param>
         public static void UnMapDrive(string driveLetter)
         {
             var directory = new DirectoryInfo(driveLetter);
-            if (directory == null)
-            {
-                // Nothing to un-map
-                return;
-            }
-
-            if (DefineDosDevice(2, driveLetter, null))
-            {
-                // Drive un-mapped
-            }
-            else
-            {
-                // Did not un-map
-                throw new Win32Exception();
-            }
+            if (directory == null) { return; }
+            if (!DefineDosDevice(2, driveLetter, null)) { throw new Win32Exception(); }            
         }
 
         public static List<string> AvailableDrives(bool win32 = false)

@@ -1,13 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JJDev.VDrive.Core", "JJDev.VDrive.Core\JJDev.VDrive.Core.csproj", "{FA48D15A-B496-4825-929E-B7F388E92278}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JJDev.VDrive.UnitTests", "JJDev.VDrive.UnitTests\JJDev.VDrive.UnitTests.csproj", "{11AC1F32-C496-4146-B7A3-74426E510659}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JJDev.VDrive.GUI", "JJDev.VDrive.GUI\JJDev.VDrive.GUI.csproj", "{802FAA09-3D1B-44EA-95A8-6E7B576F6503}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JJDev.VDrive.Tests", "JJDev.VDrive.Tests\JJDev.VDrive.Tests.csproj", "{826B2749-75F1-4E25-BDFB-A4BA56C6236E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,16 +17,15 @@ Global
 		{FA48D15A-B496-4825-929E-B7F388E92278}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA48D15A-B496-4825-929E-B7F388E92278}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA48D15A-B496-4825-929E-B7F388E92278}.Release|Any CPU.Build.0 = Release|Any CPU
-		{11AC1F32-C496-4146-B7A3-74426E510659}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{11AC1F32-C496-4146-B7A3-74426E510659}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{11AC1F32-C496-4146-B7A3-74426E510659}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{11AC1F32-C496-4146-B7A3-74426E510659}.Release|Any CPU.Build.0 = Release|Any CPU
-		{802FAA09-3D1B-44EA-95A8-6E7B576F6503}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{802FAA09-3D1B-44EA-95A8-6E7B576F6503}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{802FAA09-3D1B-44EA-95A8-6E7B576F6503}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{802FAA09-3D1B-44EA-95A8-6E7B576F6503}.Release|Any CPU.Build.0 = Release|Any CPU
+		{826B2749-75F1-4E25-BDFB-A4BA56C6236E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{826B2749-75F1-4E25-BDFB-A4BA56C6236E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{826B2749-75F1-4E25-BDFB-A4BA56C6236E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{826B2749-75F1-4E25-BDFB-A4BA56C6236E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {06C6E321-00AC-41CB-BB9F-B263CFFE8209}
 	EndGlobalSection
 EndGlobal
