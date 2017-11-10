@@ -40,7 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Ciphers\AesChiper.cs" />
+    <Compile Include="Ciphers\SymmetricAlgorithmCipher.cs" />
+    <Compile Include="Ciphers\SymmetricCipherFactory.cs" />
     <Compile Include="Contracts\ICipher.cs" />
     <Compile Include="DriveMaster.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
