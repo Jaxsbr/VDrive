@@ -2,12 +2,6 @@
 using JJDev.VDrive.Core.Contracts;
 using NSubstitute;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JJDev.VDrive.Tests
 {
@@ -174,9 +168,7 @@ namespace JJDev.VDrive.Tests
             var cipher = Substitute.For<SymmetricAlgorithmCipher>();
             SetupKeyIV(cipher, SymmetricCipherType.TripleDES);
 
-            var actual = cipher.Encode(SymmetricCipherType.TripleDES, "content777");
-            var sb = new StringBuilder();
-            actual.ToList().ForEach(x => sb.Append(x + ","));
+            var actual = cipher.Encode(SymmetricCipherType.TripleDES, "content777");            
 
             Assert.AreEqual(expected, actual);
         }

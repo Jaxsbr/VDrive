@@ -1,10 +1,6 @@
 ﻿using JJDev.VDrive.Core.Contracts;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JJDev.VDrive.Core.Ciphers
 {
@@ -79,13 +75,7 @@ namespace JJDev.VDrive.Core.Ciphers
                     break;
                 default:
                     throw new InvalidOperationException($"Invalid Symmetric Cipher Type Provided: {type}");
-            }
-
-            // TEMP:
-            var sb = new StringBuilder();
-            cipher.Key.ToList().ForEach(x => sb.Append(x + ","));
-            sb.Clear();
-            cipher.IV.ToList().ForEach(x => sb.Append(x + ","));
+            }            
         }
     }
 }
