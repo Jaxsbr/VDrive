@@ -19,14 +19,14 @@ namespace JJDev.VDrive.Core
 
         public static void MapDrive(string driveLetter, string drivePath)
         {
-            if (!DefineDosDevice(0, driveLetter, drivePath)) { throw new Win32Exception(); }           
+            if (!DefineDosDevice(0, driveLetter, drivePath)) { throw new Win32Exception(); }
         }
 
         public static void UnMapDrive(string driveLetter)
         {
             var directory = new DirectoryInfo(driveLetter);
             if (directory == null) { return; }
-            if (!DefineDosDevice(2, driveLetter, null)) { throw new Win32Exception(); }            
+            if (!DefineDosDevice(2, driveLetter, null)) { throw new Win32Exception(); }
         }
 
         public static List<string> AvailableDrives(bool win32 = false)
@@ -39,7 +39,7 @@ namespace JJDev.VDrive.Core
                 drives = drives.Select(d => d.Replace("\\", string.Empty)).ToList();
                 return drives;
             }
-            
+
             var letters = GenerateDriveLetters();
             foreach (var letter in letters)
             {
@@ -62,15 +62,15 @@ namespace JJDev.VDrive.Core
             {
                 // Convert alphabet index to upper case drive letter.
                 var letterVal = (Char)(i + upperCase);
-                letter = $"{letterVal.ToString()}:";                
-                letters.Add(letter);                
+                letter = $"{letterVal.ToString()}:";
+                letters.Add(letter);
             }
-            
+
             return letters;
         }
 
         public static bool DriveValid(string letter)
-        {            
+        {
             var buffer = new StringBuilder(256);
             if (QueryDosDevice(letter, buffer, buffer.Capacity) == 0)
             {

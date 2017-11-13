@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace JJDev.VDrive.Core.Contracts
 {
-  public interface ICipher
-  {
-    byte[] Key { get; set; }
-    byte[] IV { get; set; }
-    string Decode(SymmetricCipherType type, byte[] content);
-    byte[] Encode(SymmetricCipherType type, string content);    
-    ICryptoTransform GetCryptoTransform(SymmetricAlgorithm cryptor, CryptoStreamMode cryptoStreamMode);
-    CryptoStream GetCryptoStream(MemoryStream stream, ICryptoTransform cryptoTransform, CryptoStreamMode cryptoStreamMode);
-  }
+    public interface ICipher
+    {
+        byte[] Key { get; set; }
+        byte[] IV { get; set; }
+        string Decode(SymmetricCipherType type, byte[] content);
+        byte[] Encode(SymmetricCipherType type, string content);
+        ICryptoTransform GetCryptoTransform(SymmetricAlgorithm cryptor, CryptoStreamMode cryptoStreamMode);
+        CryptoStream GetCryptoStream(MemoryStream stream, ICryptoTransform cryptoTransform, CryptoStreamMode cryptoStreamMode);
+    }
 }
