@@ -10,11 +10,13 @@ namespace JJDev.VDrive.Core
 {
     public class DriveMaster
     {
+        #region Win32
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern bool DefineDosDevice(int flags, string driveLetter, string drivePath);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern int QueryDosDevice(string letter, StringBuilder buffer, int capacity);
+        private static extern int QueryDosDevice(string letter, StringBuilder buffer, int capacity); 
+        #endregion
 
         public static void Mount(string driveLetter, string drivePath)
         {
