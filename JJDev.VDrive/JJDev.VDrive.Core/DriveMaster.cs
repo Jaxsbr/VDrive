@@ -16,71 +16,49 @@ namespace JJDev.VDrive.Core
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern int QueryDosDevice(string letter, StringBuilder buffer, int capacity);
 
-        public static void MapDrive(string driveLetter, string drivePath)
+        public static void Mount(string driveLetter, string drivePath)
         {
             if (!DefineDosDevice(0, driveLetter, drivePath)) { throw new Win32Exception(); }
         }
 
-        public static void UnMapDrive(string driveLetter)
+        public static void Dismount(string driveLetter)
         {
             var directory = new DirectoryInfo(driveLetter);
             if (directory == null) { return; }
             if (!DefineDosDevice(2, driveLetter, null)) { throw new Win32Exception(); }
         }
 
-        public static List<string> AvailableDrives(bool win32 = false)
+        public static bool IsDriveLetterValid(string input)
         {
-            var drives = new List<string>();
-            if (!win32)
-            {
-                // Gets mounted disk partitions, Not physical drives.
-                drives = Directory.GetLogicalDrives().ToList();
-                drives = drives.Select(d => d.Replace("\\", string.Empty)).ToList();
-                return drives;
-            }
-
-            var letters = GenerateDriveLetters();
-            foreach (var letter in letters)
-            {
-                if (DriveValid(letter))
-                {
-                    drives.Add(letter);
-                }
-            }
-            return drives;
+            if (string.IsNullOrWhiteSpace(input)) { return false; }
+            if (input.Length > 2) { return false; }
+            var numericStart = "01234567898".ToList().Any(x => x == input[0]);
+            if (numericStart) { return false; }
+            return true;
         }
 
-        public static List<string> GenerateDriveLetters()
+        public static List<string> GetAvailableDriveLetters(bool lowercase = true)
         {
             var letters = new List<string>();
             var range = 26;
-            var upperCase = 65; // 65 upper | 97 lower
-            string letter;
+            var upperCase = lowercase ? 65 : 97;
+            var letter = string.Empty;
 
             for (int i = 0; i < range; i++)
-            {
-                // Convert alphabet index to upper case drive letter.
-                var letterVal = (Char)(i + upperCase);
-                letter = $"{letterVal.ToString()}:";
-                letters.Add(letter);
+            {                
+                var letterValue = (Char)(i + upperCase);
+                letter = $"{letterValue.ToString()}:";
+                if (!IsDriveInUse(letter) && IsDriveLetterValid(letter)) { letters.Add(letter); }
             }
 
             return letters;
         }
 
-        public static bool DriveValid(string letter)
-        {
+        public static bool IsDriveInUse(string letter)
+        {            
             var buffer = new StringBuilder(256);
-            if (QueryDosDevice(letter, buffer, buffer.Capacity) == 0)
-            {
-                var error = Marshal.GetLastWin32Error();
-                if (error == 2)
-                {
-                    return false;
-                }
-                throw new Win32Exception();
-            }
-            return true;
+            var result = QueryDosDevice(letter, buffer, buffer.Capacity);
+            return result == 0 ? false : true;
         }
     }
 }
