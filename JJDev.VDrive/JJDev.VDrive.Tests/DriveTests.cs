@@ -50,5 +50,27 @@ namespace JJDev.VDrive.Tests
 
       Assert.AreEqual(expected, actual);
     }
+
+    [Test]
+    public void MountTest_GivenDriveLetter_ShouldReturnTrue()
+    {
+      var expected = true;
+
+      DriveMaster.Mount(@"z:", @"c:\test\");
+      var actual = System.IO.Directory.Exists(System.IO.Path.GetPathRoot("z:\\"));
+
+      Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
+    public void DismountTest_GivenDriveLetter_ShouldReturnTrue()
+    {
+      var expected = true;
+
+      //DriveMaster.Dismount("z:");
+      var actual = !System.IO.Directory.Exists(System.IO.Path.GetPathRoot("z:\\"));
+
+      Assert.AreEqual(expected, actual);
+    }
   }
 }

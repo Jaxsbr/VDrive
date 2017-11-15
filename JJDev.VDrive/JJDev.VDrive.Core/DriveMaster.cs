@@ -15,20 +15,26 @@ namespace JJDev.VDrive.Core
         private static extern bool DefineDosDevice(int flags, string driveLetter, string drivePath);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern int QueryDosDevice(string letter, StringBuilder buffer, int capacity); 
+        private static extern int QueryDosDevice(string letter, StringBuilder buffer, int capacity);    
         #endregion
 
         public static void Mount(string driveLetter, string drivePath)
         {
+            if (!IsDriveLetterValid(driveLetter)) { return; }
             if (!DefineDosDevice(0, driveLetter, drivePath)) { throw new Win32Exception(); }
         }
 
         public static void Dismount(string driveLetter)
-        {
-            var directory = new DirectoryInfo(driveLetter);
-            if (directory == null) { return; }
-            if (!DefineDosDevice(2, driveLetter, null)) { throw new Win32Exception(); }
+        {            
+            if (!IsDriveLetterValid(driveLetter)) { return; }
+            if (!IsDriveInUse(driveLetter)) { return; }
+            if (!Directory.Exists(Path.GetPathRoot(driveLetter))) { return; }            
+            if (!DefineDosDevice(2, driveLetter, null)) { throw new Win32Exception(); }            
         }
+
+        private static string SanitizeDriveLetter(char letter) {
+            return new string(char.ToUpper(letter), 1) + ":";
+         }
 
         public static bool IsDriveLetterValid(string input)
         {
