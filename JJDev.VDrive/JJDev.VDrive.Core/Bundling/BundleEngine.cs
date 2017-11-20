@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace JJDev.VDrive.Core.Bundling
 {
@@ -20,7 +21,7 @@ namespace JJDev.VDrive.Core.Bundling
         public object Compress(string source, string destination)
         {
             var manifest = GetHierarchy(source).ToString();
-            var bytes = ObjectToByteArray(manifest);
+            //var bytes = ObjectToByteArray(manifest);
             
             // TODO:
             // - Encrypt bytes into stream
@@ -43,36 +44,6 @@ namespace JJDev.VDrive.Core.Bundling
             });
 
             return hierarchyMap;
-        }
-
-        private byte[] ObjectToByteArray(object obj)
-        {
-            // TODO:
-            // Extract logic, create serizable types(binary, xml, protobuffers)
-
-            if (obj == null) { return null; }
-            var binaryFormatter = new BinaryFormatter();
-            using (var memoryStream = new MemoryStream())
-            {
-                binaryFormatter.Serialize(memoryStream, obj);
-                return memoryStream.ToArray();
-            }
-        }
-
-        private object ByteArrayToObject(byte[] data)
-        {
-            // TODO:
-            // Extract logic, create serizable types(binary, xml, protobuffers)
-
-            object obj = null;
-            var binaryFormatter = new BinaryFormatter();
-            using (var memoryStream = new MemoryStream())
-            {
-                memoryStream.Write(data, 0, data.Length);
-                memoryStream.Seek(0, SeekOrigin.Begin);
-                obj = binaryFormatter.Deserialize(memoryStream);
-            }
-            return obj;
         }
 
 

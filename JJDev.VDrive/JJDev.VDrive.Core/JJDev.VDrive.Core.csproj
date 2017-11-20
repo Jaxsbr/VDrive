@@ -50,6 +50,9 @@
     <Compile Include="Bundling\IBundleEngine.cs" />
     <Compile Include="Bundling\IHierarchyMap.cs" />
     <Compile Include="Bundling\HierarchyMap.cs" />
+    <Compile Include="Serialization\BinarySerialization.cs" />
+    <Compile Include="Serialization\ISerialization.cs" />
+    <Compile Include="Serialization\XmlSerialization.cs" />
     <Compile Include="SystemIO.cs" />
     <Compile Include="_example.cs" />
     <Compile Include="Ciphers\ICipher.cs" />
@@ -59,9 +62,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Contracts\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
