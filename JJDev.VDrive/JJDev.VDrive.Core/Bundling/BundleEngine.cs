@@ -1,5 +1,4 @@
-﻿using JJDev.VDrive.Core.Contracts;
-using NSubstitute;
+﻿using NSubstitute;
 using System;
 using System.Collections.Generic;
 using System.IO;

@@ -46,18 +46,21 @@
     <Compile Include="Ciphers\SymmetricAlgorithmCipher.cs" />
     <Compile Include="Ciphers\SymmetricCipherFactory.cs" />
     <Compile Include="Bundling\BundleEngine.cs" />
-    <Compile Include="Contracts\IBundle.cs" />
-    <Compile Include="Contracts\IBundleEngine.cs" />
-    <Compile Include="Contracts\IHierarchyMap.cs" />
+    <Compile Include="Bundling\IBundle.cs" />
+    <Compile Include="Bundling\IBundleEngine.cs" />
+    <Compile Include="Bundling\IHierarchyMap.cs" />
     <Compile Include="Bundling\HierarchyMap.cs" />
     <Compile Include="SystemIO.cs" />
     <Compile Include="_example.cs" />
-    <Compile Include="Contracts\ICipher.cs" />
+    <Compile Include="Ciphers\ICipher.cs" />
     <Compile Include="DriveMaster.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Contracts\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

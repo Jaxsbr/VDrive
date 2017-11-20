@@ -1,5 +1,4 @@
-﻿using JJDev.VDrive.Core.Contracts;
-using System.IO;
+﻿using System.IO;
 using System.Security.Cryptography;
 
 namespace JJDev.VDrive.Core.Ciphers
