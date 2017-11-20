@@ -2,7 +2,7 @@
 using System.IO;
 using System.Security.Cryptography;
 
-namespace JJDev.VDrive.Core.Contracts
+namespace JJDev.VDrive.Core.Ciphers
 {
     public interface ICipher
     {
