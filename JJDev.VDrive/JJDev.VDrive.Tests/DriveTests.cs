@@ -56,8 +56,8 @@ namespace JJDev.VDrive.Tests
     {
       var expected = true;
 
-      DriveMaster.Mount(@"z:", @"c:\test\");
-      var actual = System.IO.Directory.Exists(System.IO.Path.GetPathRoot("z:\\"));
+      DriveMaster.Mount("z:", @"c:\");
+      var actual = DriveMaster.IsDriveInUse("z:");
 
       Assert.AreEqual(expected, actual);
     }
@@ -67,8 +67,8 @@ namespace JJDev.VDrive.Tests
     {
       var expected = true;
 
-      //DriveMaster.Dismount("z:");
-      var actual = !System.IO.Directory.Exists(System.IO.Path.GetPathRoot("z:\\"));
+      DriveMaster.Dismount("z:");
+      var actual = !DriveMaster.IsDriveInUse("z:");
 
       Assert.AreEqual(expected, actual);
     }

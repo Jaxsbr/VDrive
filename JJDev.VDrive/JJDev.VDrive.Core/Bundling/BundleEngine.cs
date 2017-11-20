@@ -18,8 +18,7 @@ namespace JJDev.VDrive.Core.Bundling
 
     public object Compress(string source, string destination)
     {
-      var hierarchyMap = GetHierarchy(source);
-      hierarchyMap.IsRoot = true;
+      var hierarchyMap = GetHierarchy(source);      
       var manifest = hierarchyMap.ToString();
 
       return null;

@@ -27,8 +27,7 @@ namespace JJDev.VDrive.Core
         public static void Dismount(string driveLetter)
         {            
             if (!IsDriveLetterValid(driveLetter)) { return; }
-            if (!IsDriveInUse(driveLetter)) { return; }
-            if (!Directory.Exists(Path.GetPathRoot(driveLetter))) { return; }            
+            if (!IsDriveInUse(driveLetter)) { return; }                       
             if (!DefineDosDevice(2, driveLetter, null)) { throw new Win32Exception(); }            
         }
 
