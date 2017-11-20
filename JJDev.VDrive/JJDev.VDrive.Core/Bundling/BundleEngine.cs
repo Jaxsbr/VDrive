@@ -2,7 +2,9 @@
 using NSubstitute;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,15 +13,20 @@ namespace JJDev.VDrive.Core.Bundling
     public class BundleEngine : IBundleEngine
     {
         // [Compress]
-        // Map hirarchy (serialize able object)
+        // Map hirarchy (serializeable object)
         // Append to stream
         // Append encoded file content to stream, disregard hirarchy
         // Write stream to file
 
         public object Compress(string source, string destination)
         {
-            var hierarchyMap = GetHierarchy(source);
-            var manifest = hierarchyMap.ToString();
+            var manifest = GetHierarchy(source).ToString();
+            var bytes = ObjectToByteArray(manifest);
+            
+            // TODO:
+            // - Encrypt bytes into stream
+            // - Encrypt source content into stream
+            // - Write encrypted stream to file
 
             return null;
         }
@@ -37,6 +44,36 @@ namespace JJDev.VDrive.Core.Bundling
             });
 
             return hierarchyMap;
+        }
+
+        private byte[] ObjectToByteArray(object obj)
+        {
+            // TODO:
+            // Extract logic, create serizable types(binary, xml, protobuffers)
+
+            if (obj == null) { return null; }
+            var binaryFormatter = new BinaryFormatter();
+            using (var memoryStream = new MemoryStream())
+            {
+                binaryFormatter.Serialize(memoryStream, obj);
+                return memoryStream.ToArray();
+            }
+        }
+
+        private object ByteArrayToObject(byte[] data)
+        {
+            // TODO:
+            // Extract logic, create serizable types(binary, xml, protobuffers)
+
+            object obj = null;
+            var binaryFormatter = new BinaryFormatter();
+            using (var memoryStream = new MemoryStream())
+            {
+                memoryStream.Write(data, 0, data.Length);
+                memoryStream.Seek(0, SeekOrigin.Begin);
+                obj = binaryFormatter.Deserialize(memoryStream);
+            }
+            return obj;
         }
 
 
