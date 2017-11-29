@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace JJDev.VDrive.Tests
 {
-  [TestFixture]
-  public class BundleTests
-  {    
-    [Test]
-    public void Test()
-    {      
-      var sut = new BundleEngine();
-      sut.Compress(@"C:\test", @"C:\destination");
+    [TestFixture]
+    public class BundleTests
+    {
+        [Test]
+        public void Test()
+        {
+            var sut = new BundleEngine();
+            sut.Compress(@"C:\test", @"C:\destination");
+        }
     }
-  }
 }
