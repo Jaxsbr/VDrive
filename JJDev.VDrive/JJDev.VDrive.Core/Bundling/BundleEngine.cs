@@ -7,6 +7,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using JJDev.VDrive.Core.Serialization;
 
 namespace JJDev.VDrive.Core.Bundling
 {
@@ -20,12 +21,31 @@ namespace JJDev.VDrive.Core.Bundling
 
         public object Compress(string source, string destination)
         {
+            var serializer = new BinarySerialization();
+            var outStream = new MemoryStream();
+            var writer = new BinaryWriter(outStream);
             var manifest = GetHierarchy(source).ToString();
-            //var bytes = ObjectToByteArray(manifest);
+            var filesInManifest = manifest.Split('\n').ToList();
+            var manifestData = serializer.Serialize(manifest);            
             
-            // TODO:
-            // - Encrypt bytes into stream
-            // - Encrypt source content into stream
+            // NOTE: Add manifest size, then add manifest data
+            writer.Write(manifestData.Length);
+            writer.Write(manifestData, 0, manifestData.Length);
+
+            // NOTE: Ingore folders, serialize files in order read from manifest list.
+            filesInManifest.ForEach(x =>
+            {
+                if (x.StartsWith("f "))
+                {
+                    var path = x.Substring(2, x.Length - 2);
+                    var fileData = File.ReadAllBytes(path);
+                    writer.Write(fileData.Length);
+                    writer.Write(fileData, 0, fileData.Length);
+                }
+            });
+
+            // TODO:            
+            // - Encrypt source content stream
             // - Write encrypted stream to file
 
             return null;

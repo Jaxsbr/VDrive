@@ -15,7 +15,7 @@ namespace JJDev.VDrive.Tests
     public void Test()
     {      
       var sut = new BundleEngine();
-      sut.Compress(@"C:\source", @"C:\destination");
+      sut.Compress(@"C:\test", @"C:\destination");
     }
   }
 }

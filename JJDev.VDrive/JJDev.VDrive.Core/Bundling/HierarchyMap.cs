@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace JJDev.VDrive.Core.Bundling
 {  
+    [Serializable]
   public class HierarchyMap : IHierarchyMap
   {
     public string Path { get; set; }
@@ -16,7 +17,7 @@ namespace JJDev.VDrive.Core.Bundling
     public override string ToString()
     {
       var value = string.Empty;
-      GetPaths(this).ForEach(x => value += Environment.NewLine + x);
+      GetPaths(this).ForEach(x => value += (string.IsNullOrWhiteSpace(value) ? string.Empty : "\n") + x);
       return value;
     }
 
