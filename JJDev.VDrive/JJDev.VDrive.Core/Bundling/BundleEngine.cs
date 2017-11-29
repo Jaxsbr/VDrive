@@ -28,11 +28,12 @@ namespace JJDev.VDrive.Core.Bundling
             var filesInManifest = manifest.Split('\n').ToList();
             var manifestData = serializer.Serialize(manifest);            
             
-            // NOTE: Add manifest size, then add manifest data
+            // NOTE: Add manifest size, then add manifest data.
             writer.Write(manifestData.Length);
             writer.Write(manifestData, 0, manifestData.Length);
 
             // NOTE: Ingore folders, serialize files in order read from manifest list.
+            //       Add file size, then add file data.
             filesInManifest.ForEach(x =>
             {
                 if (x.StartsWith("f "))
