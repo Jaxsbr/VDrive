@@ -3,15 +3,6 @@ using System.Security.Cryptography;
 
 namespace JJDev.VDrive.Core.Ciphers
 {
-    public enum SymmetricCipherType
-    {
-        Aes,
-        DES,
-        RC2,
-        Rijndael,
-        TripleDES
-    }
-
     public class SymmetricCipherFactory
     {
         public static SymmetricAlgorithm GetCipher(SymmetricCipherType type)
