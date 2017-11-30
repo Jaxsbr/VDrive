@@ -14,6 +14,7 @@ namespace JJDev.VDrive.Core.Bundling
 {
     public class BundleEngine : IBundleEngine
     {
+        // TEMP: Will be passed in by user of library
         private static readonly byte[] _key = new byte[] { 105, 195, 252, 185, 2, 140, 51, 126, 104, 229, 79, 123, 212, 18, 202, 2, 110, 30, 207, 111, 0, 244, 173, 234, 220, 14, 253, 178, 156, 52, 214, 127 };
         private static readonly byte[] _iv = new byte[] { 8, 68, 137, 198, 127, 127, 18, 72, 241, 104, 126, 253, 191, 17, 44, 132 };
 
@@ -86,7 +87,20 @@ namespace JJDev.VDrive.Core.Bundling
         // Generate original directory structure at destination
         public object Decompress(string source, string destination)
         {
-            throw new NotImplementedException();
+            var cipher = new SymmetricAlgorithmCipher() { Key = _key, IV = _iv };           
+            var encodeData = File.ReadAllBytes(source);
+            var base64Data = cipher.Decode(SymmetricCipherType.Aes, encodeData);
+            var decodeData = Convert.FromBase64String(base64Data);
+            var inputStream = new MemoryStream(decodeData);
+            var reader = new BinaryReader(inputStream);
+
+            // TODO:
+            // Read manifest object from stream.
+            // Itterate files in manifest list.
+            // Foreach file in list, read file data into dictionary.
+            // Re construct original directory structure in destination location.
+
+            return null;
         }
     }
 }
