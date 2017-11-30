@@ -51,6 +51,7 @@
     <Compile Include="Bundling\IHierarchyMap.cs" />
     <Compile Include="Bundling\HierarchyMap.cs" />
     <Compile Include="Ciphers\SymmetricCipherType.cs" />
+    <Compile Include="Compression\CompressEngine.cs" />
     <Compile Include="Serialization\BinarySerialization.cs" />
     <Compile Include="Serialization\ISerialization.cs" />
     <Compile Include="Serialization\XmlSerialization.cs" />
