@@ -31,8 +31,8 @@ namespace JJDev.VDrive.Core.Bundling
             var outStream = new MemoryStream();
             var finalStream = new MemoryStream();
             var writer = new BinaryWriter(outStream);
-            var manifest = GetHierarchy(source).ToString();
-            var filesInManifest = manifest.Split('\n').ToList();
+            var manifest = GetHierarchy(source);
+            var filesInManifest = manifest.ToString().Split('\n').ToList();
             var manifestData = serializer.Serialize(manifest);            
             
             // NOTE: Add manifest size, then add manifest data.
@@ -70,10 +70,13 @@ namespace JJDev.VDrive.Core.Bundling
             var files = SystemIO.GetFiles(source);
             var folders = SystemIO.GetFolders(source);
 
-            files.ForEach(file => { hierarchyMap.Hierarchies.Add(new HierarchyMap() { Path = file, IsFile = true }); });
+            files.ForEach(file => 
+            {
+              hierarchyMap.Hierarchies.Add(new HierarchyMap() { Path = file, IsFile = true });
+            });
             folders.ForEach(folder =>
             {
-                hierarchyMap.Hierarchies.Add(GetHierarchy(folder));
+              hierarchyMap.Hierarchies.Add(GetHierarchy(folder));
             });
 
             return hierarchyMap;
@@ -87,12 +90,18 @@ namespace JJDev.VDrive.Core.Bundling
         // Generate original directory structure at destination
         public object Decompress(string source, string destination)
         {
+            var serializer = new BinarySerialization();
             var cipher = new SymmetricAlgorithmCipher() { Key = _key, IV = _iv };           
             var encodeData = File.ReadAllBytes(source);
             var base64Data = cipher.Decode(SymmetricCipherType.Aes, encodeData);
             var decodeData = Convert.FromBase64String(base64Data);
             var inputStream = new MemoryStream(decodeData);
             var reader = new BinaryReader(inputStream);
+
+            var manifestLength = reader.ReadInt32();
+            var manifestData = reader.ReadBytes(manifestLength);
+
+            var manifest = serializer.Deserialize<HierarchyMap>(manifestData);
 
             // TODO:
             // Read manifest object from stream.

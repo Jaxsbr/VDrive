@@ -12,10 +12,17 @@ namespace JJDev.VDrive.Tests
     public class BundleTests
     {
         [Test]
-        public void Test()
+        public void CompressTest_GivenSource_ShouldCompressToDestination()
         {
             var sut = new BundleEngine();
             sut.Compress(@"C:\test", @"C:\test\enc.txt");
         }
-    }
+
+        [Test]
+        public void DecompressTest_GivenSource_ShouldDecompressToDestination()
+        {
+          var sut = new BundleEngine();      
+          sut.Decompress(@"C:\test\enc.txt", @"C:\users\jacobr\desktop");
+        }
+  }
 }
