@@ -100,13 +100,24 @@ namespace JJDev.VDrive.Core.Bundling
 
             var manifestLength = reader.ReadInt32();
             var manifestData = reader.ReadBytes(manifestLength);
-
             var manifest = serializer.Deserialize<HierarchyMap>(manifestData);
+            var filesInManifest = manifest.ToString().Split('\n').ToList();
 
-            // TODO:
-            // Read manifest object from stream.
-            // Itterate files in manifest list.
-            // Foreach file in list, read file data into dictionary.
+            var fileIndex = 0;
+            var filesDataContainer = new Dictionary<string, byte[]>();
+            while (reader.BaseStream.Position != reader.BaseStream.Length)      
+            {
+                var length = reader.ReadInt32();
+                if (length > 0)
+                {
+                    var fileData = reader.ReadBytes(length);
+                    var file = filesInManifest[fileIndex];
+                    filesDataContainer.Add(file, fileData);
+                    fileIndex++;
+                }
+            }
+
+            // TODO:            
             // Re construct original directory structure in destination location.
 
             return null;
