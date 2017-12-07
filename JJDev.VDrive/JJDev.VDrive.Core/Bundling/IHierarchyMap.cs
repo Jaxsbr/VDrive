@@ -8,8 +8,10 @@ namespace JJDev.VDrive.Core.Bundling
 {
   public interface IHierarchyMap
   {    
+    string Source { get; set; }
     string Path { get; set; }
     bool IsFile { get; set; }
+    byte[] Data { get; set; }
     List<IHierarchyMap> Hierarchies { get; set; }
   }
 }

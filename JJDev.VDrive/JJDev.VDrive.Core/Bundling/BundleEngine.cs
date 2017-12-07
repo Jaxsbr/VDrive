@@ -23,7 +23,6 @@ namespace JJDev.VDrive.Core.Bundling
         // Append to stream
         // Append encoded file content to stream, disregard hirarchy
         // Write stream to file
-
         public object Compress(string source, string destination)
         {
             var cipher = new SymmetricAlgorithmCipher() { Key = _key, IV = _iv };            
@@ -31,26 +30,12 @@ namespace JJDev.VDrive.Core.Bundling
             var outStream = new MemoryStream();
             var finalStream = new MemoryStream();
             var writer = new BinaryWriter(outStream);
-            var manifest = GetHierarchy(source);
-            var filesInManifest = manifest.ToString().Split('\n').ToList();
+            var manifest = GetHierarchy(source, source);
             var manifestData = serializer.Serialize(manifest);            
             
             // NOTE: Add manifest size, then add manifest data.
             writer.Write(manifestData.Length);
             writer.Write(manifestData, 0, manifestData.Length);
-
-            // NOTE: Ingore folders, serialize files in order read from manifest list.
-            //       Add file size, then add file data.
-            filesInManifest.ForEach(x =>
-            {
-                if (x.StartsWith("f "))
-                {
-                    var path = x.Substring(2, x.Length - 2);
-                    var fileData = File.ReadAllBytes(path);
-                    writer.Write(fileData.Length);
-                    writer.Write(fileData, 0, fileData.Length);
-                }
-            });
 
             writer.Flush();
             outStream.Position = 0;
@@ -63,25 +48,6 @@ namespace JJDev.VDrive.Core.Bundling
 
             return encodedData;
         }
-
-        private HierarchyMap GetHierarchy(string source)
-        {
-            var hierarchyMap = new HierarchyMap() { Path = source, IsFile = false };
-            var files = SystemIO.GetFiles(source);
-            var folders = SystemIO.GetFolders(source);
-
-            files.ForEach(file => 
-            {
-              hierarchyMap.Hierarchies.Add(new HierarchyMap() { Path = file, IsFile = true });
-            });
-            folders.ForEach(folder =>
-            {
-              hierarchyMap.Hierarchies.Add(GetHierarchy(folder));
-            });
-
-            return hierarchyMap;
-        }
-
 
         // [Decompress]
         // Read content into stream
@@ -101,45 +67,51 @@ namespace JJDev.VDrive.Core.Bundling
             var manifestLength = reader.ReadInt32();
             var manifestData = reader.ReadBytes(manifestLength);
             var manifest = serializer.Deserialize<HierarchyMap>(manifestData);
-            var pathsInManifest = manifest.ToString().Split('\n').ToList();
-            var filesInManifest = pathsInManifest.Where(x => x.StartsWith("f ")).ToList();
-
-            var fileIndex = 0;
-            var filesDataContainer = new Dictionary<string, byte[]>();
-            while (reader.BaseStream.Position != reader.BaseStream.Length)      
-            {
-                var length = reader.ReadInt32();
-                if (length > 0)
-                {
-                    var fileData = reader.ReadBytes(length);
-                    var file = pathsInManifest[fileIndex];
-                    filesDataContainer.Add(file, fileData);
-                    fileIndex++;
-                }
-            }
-
-            // TODO:            
-            // Replace source section of path with destination section
-            for (int i = 0; i < pathsInManifest.Count; i++)
-            {
-                var path = pathsInManifest[i];
-                var filePath = path.Substring(2);
-                if (path.StartsWith("d ") && !Directory.Exists(filePath))
-                { 
-                    Directory.CreateDirectory(path);
-                }
-                else if (path.StartsWith("f "))
-                {
-                    var fileData = filesDataContainer[path];                    
-                    using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
-                    {
-                        fileStream.Write(fileData, 0, fileData.Length)    ;
-                    }
-                }
-            }
-
-
+            manifest.Hierarchies.ForEach(childHierarchy => CreateDataHierarchy(childHierarchy, destination));
+   
             return null;
+        }
+    
+        private HierarchyMap GetHierarchy(string source, string rootSource)
+        {
+            var hierarchyMap = new HierarchyMap() { Source = rootSource, Path = source, IsFile = false };
+            var files = SystemIO.GetFiles(source);
+            var folders = SystemIO.GetFolders(source);
+
+            files.ForEach(file => 
+            {
+              hierarchyMap.Hierarchies.Add(new HierarchyMap()
+              {
+                Source = rootSource,
+                Path = file,
+                IsFile = true,
+                Data = File.ReadAllBytes(file)
+              });
+            });
+
+            folders.ForEach(folder =>
+            {
+              hierarchyMap.Hierarchies.Add(GetHierarchy(folder, rootSource));
+            });
+
+            return hierarchyMap;
+        }
+
+        private void CreateDataHierarchy(IHierarchyMap hierarchyMap, string destination)
+        {
+            var filePath = hierarchyMap.Path.Replace(hierarchyMap.Source, destination);
+            if (hierarchyMap.IsFile)
+            {                
+                using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+                {
+                    fileStream.Write(hierarchyMap.Data, 0, hierarchyMap.Data.Length)    ;
+                }
+            }
+            else if (!Directory.Exists(filePath))
+            {        
+                Directory.CreateDirectory(filePath);
+                hierarchyMap.Hierarchies.ForEach(childHierarchy => CreateDataHierarchy(childHierarchy, destination));
+            }
         }
     }
 }

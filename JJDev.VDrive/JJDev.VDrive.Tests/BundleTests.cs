@@ -22,7 +22,7 @@ namespace JJDev.VDrive.Tests
         public void DecompressTest_GivenSource_ShouldDecompressToDestination()
         {
           var sut = new BundleEngine();      
-          sut.Decompress(@"C:\users\jacobr\desktop\enc.txt", @"C:\users\jacobr\desktop");
+          sut.Decompress(@"C:\users\jacobr\desktop\enc.txt", @"C:\users\jacobr\desktop\testOutput");
         }
   }
 }
