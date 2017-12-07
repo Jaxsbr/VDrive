@@ -101,7 +101,8 @@ namespace JJDev.VDrive.Core.Bundling
             var manifestLength = reader.ReadInt32();
             var manifestData = reader.ReadBytes(manifestLength);
             var manifest = serializer.Deserialize<HierarchyMap>(manifestData);
-            var filesInManifest = manifest.ToString().Split('\n').ToList();
+            var pathsInManifest = manifest.ToString().Split('\n').ToList();
+            var filesInManifest = pathsInManifest.Where(x => x.StartsWith("f ")).ToList();
 
             var fileIndex = 0;
             var filesDataContainer = new Dictionary<string, byte[]>();
@@ -111,14 +112,32 @@ namespace JJDev.VDrive.Core.Bundling
                 if (length > 0)
                 {
                     var fileData = reader.ReadBytes(length);
-                    var file = filesInManifest[fileIndex];
+                    var file = pathsInManifest[fileIndex];
                     filesDataContainer.Add(file, fileData);
                     fileIndex++;
                 }
             }
 
             // TODO:            
-            // Re construct original directory structure in destination location.
+            // Replace source section of path with destination section
+            for (int i = 0; i < pathsInManifest.Count; i++)
+            {
+                var path = pathsInManifest[i];
+                var filePath = path.Substring(2);
+                if (path.StartsWith("d ") && !Directory.Exists(filePath))
+                { 
+                    Directory.CreateDirectory(path);
+                }
+                else if (path.StartsWith("f "))
+                {
+                    var fileData = filesDataContainer[path];                    
+                    using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+                    {
+                        fileStream.Write(fileData, 0, fileData.Length)    ;
+                    }
+                }
+            }
+
 
             return null;
         }
