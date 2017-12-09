@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using JJDev.VDrive.Core.Serialization;
 using JJDev.VDrive.Core.Ciphers;
+using JJDev.VDrive.Core.Compression;
 
 namespace JJDev.VDrive.Core.Bundling
 {
@@ -25,43 +26,36 @@ namespace JJDev.VDrive.Core.Bundling
         // Write stream to file
         public object Compress(string source, string destination)
         {
-            var cipher = new SymmetricAlgorithmCipher() { Key = _key, IV = _iv };            
+            var cipher = new SymmetricAlgorithmCipher() { Key = _key, IV = _iv };
             var serializer = new BinarySerialization();
             var outStream = new MemoryStream();
             var finalStream = new MemoryStream();
             var writer = new BinaryWriter(outStream);
-            var manifest = GetHierarchy(source, source);
-            var manifestData = serializer.Serialize(manifest);            
-            
-            // NOTE: Add manifest size, then add manifest data.
-            writer.Write(manifestData.Length);
-            writer.Write(manifestData, 0, manifestData.Length);
 
-            writer.Flush();
-            outStream.Position = 0;
-            outStream.CopyTo(finalStream);
-            writer.Close();
+            WriterManifestData(source, serializer, outStream, finalStream, writer);
 
-            var base64Data = Convert.ToBase64String(finalStream.ToArray());      
+            var compressedData = CompressEngine.Compress(finalStream.ToArray());
+            var base64Data = Convert.ToBase64String(compressedData);
             var encodedData = cipher.Encode(SymmetricCipherType.Aes, base64Data);
-            File.WriteAllBytes(destination, encodedData);      
+            File.WriteAllBytes(destination, encodedData);
 
             return encodedData;
         }
 
         // [Decompress]
-        // Read content into stream
-        // Read hirarchy map part and construct object
-        // Read remaining stream into flat list of file content
-        // Generate original directory structure at destination
+    // Read content into stream
+    // Read hirarchy map part and construct object
+    // Read remaining stream into flat list of file content
+    // Generate original directory structure at destination
         public object Decompress(string source, string destination)
         {
             var serializer = new BinarySerialization();
-            var cipher = new SymmetricAlgorithmCipher() { Key = _key, IV = _iv };           
-            var encodeData = File.ReadAllBytes(source);
+            var cipher = new SymmetricAlgorithmCipher() { Key = _key, IV = _iv };  
+            var encodeData = File.ReadAllBytes(source);            
             var base64Data = cipher.Decode(SymmetricCipherType.Aes, encodeData);
             var decodeData = Convert.FromBase64String(base64Data);
-            var inputStream = new MemoryStream(decodeData);
+            var compressedData = CompressEngine.Decompress(decodeData);
+            var inputStream = new MemoryStream(compressedData);
             var reader = new BinaryReader(inputStream);
 
             var manifestLength = reader.ReadInt32();
@@ -112,6 +106,20 @@ namespace JJDev.VDrive.Core.Bundling
                 Directory.CreateDirectory(filePath);
                 hierarchyMap.Hierarchies.ForEach(childHierarchy => CreateDataHierarchy(childHierarchy, destination));
             }
+        }
+
+        private void WriterManifestData(string source, BinarySerialization serializer, MemoryStream outStream, MemoryStream finalStream, BinaryWriter writer)
+        {
+            var manifest = GetHierarchy(source, source);
+            var manifestData = serializer.Serialize(manifest);
+
+            writer.Write(manifestData.Length);
+            writer.Write(manifestData, 0, manifestData.Length);
+
+            writer.Flush();
+            outStream.Position = 0;
+            outStream.CopyTo(finalStream);
+            writer.Close();
         }
     }
 }
