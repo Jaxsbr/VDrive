@@ -14,19 +14,9 @@ using JJDev.VDrive.Core.Compression;
 namespace JJDev.VDrive.Core.Bundling
 {
     public class BundleEngine : IBundleEngine
-    {
-        // TEMP: Will be passed in by user of library
-        private static readonly byte[] _key = new byte[] { 105, 195, 252, 185, 2, 140, 51, 126, 104, 229, 79, 123, 212, 18, 202, 2, 110, 30, 207, 111, 0, 244, 173, 234, 220, 14, 253, 178, 156, 52, 214, 127 };
-        private static readonly byte[] _iv = new byte[] { 8, 68, 137, 198, 127, 127, 18, 72, 241, 104, 126, 253, 191, 17, 44, 132 };
-
-        // [Compress]
-        // Map hirarchy (serializeable object)
-        // Append to stream
-        // Append encoded file content to stream, disregard hirarchy
-        // Write stream to file
-        public object Compress(string source, string destination)
-        {
-            var cipher = new SymmetricAlgorithmCipher() { Key = _key, IV = _iv };
+    {                
+        public object Compress(string source, string destination, ICipher cipher)
+        {            
             var serializer = new BinarySerialization();
             var outStream = new MemoryStream();
             var finalStream = new MemoryStream();
@@ -41,23 +31,19 @@ namespace JJDev.VDrive.Core.Bundling
 
             return encodedData;
         }
-
-        // [Decompress]
-        // Read content into stream
-        // Read hirarchy map part and construct object
-        // Read remaining stream into flat list of file content
-        // Generate original directory structure at destination
-        public object Decompress(string source, string destination)
+        
+        public object Decompress(string source, string destination, ICipher cipher)
         {
-            var serializer = new BinarySerialization();
-            var cipher = new SymmetricAlgorithmCipher() { Key = _key, IV = _iv };
+            var serializer = new BinarySerialization();            
             var encodeData = File.ReadAllBytes(source);
             var base64Data = cipher.Decode(SymmetricCipherType.Aes, encodeData);
             var decodeData = Convert.FromBase64String(base64Data);
             var compressedData = CompressEngine.Decompress(decodeData);
             var inputStream = new MemoryStream(compressedData);
             var reader = new BinaryReader(inputStream);
+
             HierarchyMap manifest = ReadManifestData(serializer, reader);
+
             manifest.Hierarchies.ForEach(childHierarchy => CreateDataHierarchy(childHierarchy, destination));
 
             return null;
