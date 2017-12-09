@@ -43,49 +43,54 @@ namespace JJDev.VDrive.Core.Bundling
         }
 
         // [Decompress]
-    // Read content into stream
-    // Read hirarchy map part and construct object
-    // Read remaining stream into flat list of file content
-    // Generate original directory structure at destination
+        // Read content into stream
+        // Read hirarchy map part and construct object
+        // Read remaining stream into flat list of file content
+        // Generate original directory structure at destination
         public object Decompress(string source, string destination)
         {
             var serializer = new BinarySerialization();
-            var cipher = new SymmetricAlgorithmCipher() { Key = _key, IV = _iv };  
-            var encodeData = File.ReadAllBytes(source);            
+            var cipher = new SymmetricAlgorithmCipher() { Key = _key, IV = _iv };
+            var encodeData = File.ReadAllBytes(source);
             var base64Data = cipher.Decode(SymmetricCipherType.Aes, encodeData);
             var decodeData = Convert.FromBase64String(base64Data);
             var compressedData = CompressEngine.Decompress(decodeData);
             var inputStream = new MemoryStream(compressedData);
             var reader = new BinaryReader(inputStream);
+            HierarchyMap manifest = ReadManifestData(serializer, reader);
+            manifest.Hierarchies.ForEach(childHierarchy => CreateDataHierarchy(childHierarchy, destination));
 
+            return null;
+        }
+
+        private static HierarchyMap ReadManifestData(BinarySerialization serializer, BinaryReader reader)
+        {
             var manifestLength = reader.ReadInt32();
             var manifestData = reader.ReadBytes(manifestLength);
             var manifest = serializer.Deserialize<HierarchyMap>(manifestData);
-            manifest.Hierarchies.ForEach(childHierarchy => CreateDataHierarchy(childHierarchy, destination));
-   
-            return null;
+            return manifest;
         }
-    
+
         private HierarchyMap GetHierarchy(string source, string rootSource)
         {
             var hierarchyMap = new HierarchyMap() { Source = rootSource, Path = source, IsFile = false };
             var files = SystemIO.GetFiles(source);
             var folders = SystemIO.GetFolders(source);
 
-            files.ForEach(file => 
+            files.ForEach(file =>
             {
-              hierarchyMap.Hierarchies.Add(new HierarchyMap()
-              {
-                Source = rootSource,
-                Path = file,
-                IsFile = true,
-                Data = File.ReadAllBytes(file)
-              });
+                hierarchyMap.Hierarchies.Add(new HierarchyMap()
+                {
+                    Source = rootSource,
+                    Path = file,
+                    IsFile = true,
+                    Data = File.ReadAllBytes(file)
+                });
             });
 
             folders.ForEach(folder =>
             {
-              hierarchyMap.Hierarchies.Add(GetHierarchy(folder, rootSource));
+                hierarchyMap.Hierarchies.Add(GetHierarchy(folder, rootSource));
             });
 
             return hierarchyMap;
@@ -95,14 +100,14 @@ namespace JJDev.VDrive.Core.Bundling
         {
             var filePath = hierarchyMap.Path.Replace(hierarchyMap.Source, destination);
             if (hierarchyMap.IsFile)
-            {                
+            {
                 using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
                 {
-                    fileStream.Write(hierarchyMap.Data, 0, hierarchyMap.Data.Length)    ;
+                    fileStream.Write(hierarchyMap.Data, 0, hierarchyMap.Data.Length);
                 }
             }
             else if (!Directory.Exists(filePath))
-            {        
+            {
                 Directory.CreateDirectory(filePath);
                 hierarchyMap.Hierarchies.ForEach(childHierarchy => CreateDataHierarchy(childHierarchy, destination));
             }
