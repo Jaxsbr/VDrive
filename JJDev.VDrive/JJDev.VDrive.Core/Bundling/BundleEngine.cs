@@ -43,10 +43,9 @@ namespace JJDev.VDrive.Core.Bundling
             var reader = new BinaryReader(inputStream);
 
             HierarchyMap manifest = ReadManifestData(serializer, reader);
-
             manifest.Hierarchies.ForEach(childHierarchy => CreateDataHierarchy(childHierarchy, destination));
 
-            return null;
+            return manifest;
         }
 
         private static HierarchyMap ReadManifestData(BinarySerialization serializer, BinaryReader reader)
