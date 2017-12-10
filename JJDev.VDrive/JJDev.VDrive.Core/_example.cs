@@ -7,12 +7,31 @@
  *
 */
 
+using ProtoBuf;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
 
 namespace TL.Drive
 {
+
+
+
+
+  [ProtoContract(SkipConstructor = true)]
+  public class ProtoExample
+  {
+    [ProtoMember(1)]
+    public int ID { get; set; }
+
+    [ProtoMember(2)]
+    public string Name { get; set; }
+  }
+
+
+
+
+
   /// <summary>
   /// Creation and deletion of non-persistent virtual drives.
   /// The drive has to be restored after a reboot of the system.
@@ -20,6 +39,7 @@ namespace TL.Drive
   /// 
   /// VirtualDrive - © Konstantin Gross
   /// </summary>
+  /// 
   public class VirtualDrive
   {
     #region Win32

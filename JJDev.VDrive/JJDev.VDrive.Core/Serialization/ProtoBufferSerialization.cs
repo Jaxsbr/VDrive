@@ -1,5 +1,7 @@
-﻿using System;
+﻿using ProtoBuf;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,12 +12,20 @@ namespace JJDev.VDrive.Core.Serialization
     {
         public T Deserialize<T>(byte[] data)
         {
-            throw new NotImplementedException();
+            using (var stream = new MemoryStream(data))
+            {
+                return Serializer.Deserialize<T>(stream);
+            }
         }
 
         public byte[] Serialize(object obj)
         {
-            throw new NotImplementedException();
+            if (obj == null) { return null; }
+            using (var stream = new MemoryStream())
+            {
+                Serializer.Serialize(stream, obj);
+                return stream.ToArray();
+            }            
         }
     }
 }
