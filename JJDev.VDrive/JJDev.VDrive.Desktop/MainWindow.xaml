@@ -11,10 +11,17 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Button x:Name="MountButton" Height="35" Width="100" Grid.Row="0">mount</Button>
         <Button x:Name="DismountButton" Height="35" Width="100" Grid.Row="1">dismount</Button>
         <Button x:Name="TestButton" Height="35" Width="100" Grid.Row="2">test</Button>
+      
+        <Button x:Name="EncodeButton" Height="35" Width="100" Grid.Row="4">encode</Button>
+        <Button x:Name="DecodeButton" Height="35" Width="100" Grid.Row="5">decode</Button>
     </Grid>
 </Window>

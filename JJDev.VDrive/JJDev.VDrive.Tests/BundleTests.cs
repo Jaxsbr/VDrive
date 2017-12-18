@@ -42,6 +42,7 @@ namespace JJDev.VDrive.Tests
         [SetUp]
         public void Init()
         {
+            return;
             var path = @"C:\test";
             if (!Directory.Exists(path)) { Directory.CreateDirectory(path); }
 
@@ -52,6 +53,7 @@ namespace JJDev.VDrive.Tests
         [TearDown]
         public void Cleanup()
         {
+            return;
             var path = @"C:\test";
             Directory.Delete(path);
 

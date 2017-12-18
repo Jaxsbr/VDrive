@@ -1,4 +1,6 @@
 ﻿using JJDev.VDrive.Core;
+using JJDev.VDrive.Core.Bundling;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +29,45 @@ namespace JJDev.VDrive.Desktop
             MountButton.Click += MountButton_Click;
             DismountButton.Click += DismountButton_Click;
             TestButton.Click += TestButton_Click;
+            EncodeButton.Click += EncodeButton_Click;
+            DecodeButton.Click += DecodeButton_Click;
         }
+
+        private void DecodeButton_Click(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void EncodeButton_Click(object sender, RoutedEventArgs e)
+        {
+          var sut = new BundleEngine();
+          var cipher = CipherKeys.GetCipher();
+          var folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog()
+          {
+            Description = "Select a path to the source data"
+          };
+          var saveFileDialog = new SaveFileDialog()
+          {
+            Filter = "Ecoded File |*.enc",
+            Title = "Select and output path for encoded data"
+          };          
+
+          var folderResult = folderBrowserDialog.ShowDialog();
+          if (folderResult != System.Windows.Forms.DialogResult.OK) { return; }
+
+          var saveResult = saveFileDialog.ShowDialog();
+          if (!(bool)saveResult) { return; }
+
+
+          // TODO:
+          // Compress async
+          // Progress updates
+
+          sut.Compress(folderBrowserDialog.SelectedPath, saveFileDialog.FileName, cipher);
+
+          if (System.IO.File.Exists(saveFileDialog.FileName)) { MessageBox.Show("Data encoded successfully!"); }
+          else { MessageBox.Show("Data encoding failed!"); }
+    }
 
         private void TestButton_Click(object sender, RoutedEventArgs e)
         {
