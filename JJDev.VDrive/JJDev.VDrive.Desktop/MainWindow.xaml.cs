@@ -35,8 +35,28 @@ namespace JJDev.VDrive.Desktop
 
         private void DecodeButton_Click(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
-        }
+            var sut = new BundleEngine();
+            var cipher = CipherKeys.GetCipher();
+            var openFileDialog = new OpenFileDialog()
+            {
+              Filter = "Ecoded File |*.enc",
+              Title = "Selected encoded file"
+            };
+            var folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog()
+            {
+              Description = "Select a output path to decode data to"
+            };
+            
+            var openResult = openFileDialog.ShowDialog();
+            if (!(bool)openResult) { return; }
+
+            var folderResult = folderBrowserDialog.ShowDialog();
+            if (folderResult != System.Windows.Forms.DialogResult.OK) { return; }
+
+            sut.Decompress(openFileDialog.FileName, folderBrowserDialog.SelectedPath, cipher);
+
+            MessageBox.Show("Data decoded successfully!");
+          }
 
         private void EncodeButton_Click(object sender, RoutedEventArgs e)
         {
