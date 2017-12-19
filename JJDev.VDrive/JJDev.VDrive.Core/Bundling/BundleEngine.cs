@@ -111,5 +111,37 @@ namespace JJDev.VDrive.Core.Bundling
             outStream.CopyTo(finalStream);
             writer.Close();
         }
+
+        private void GenerateEncodedBundle(DirectoryManifest directoryManifest, BinaryWriter writer)
+        {
+            var serializer = new BinarySerialization();
+            var directoryManifestBytes = serializer.Serialize(directoryManifest);
+
+            writer.Write(directoryManifestBytes.Length);
+            writer.Write(directoryManifestBytes, 0, directoryManifestBytes.Length);
+
+            foreach (DirectoryElement directoryElement in directoryManifest.Elements)
+            {
+                var directoryElementBytes = serializer.Serialize(directoryElement);
+                writer.Write(directoryElementBytes.Length);
+                writer.Write(directoryElementBytes, 0, directoryElementBytes.Length);
+
+                if (!directoryElement.IsDirectory)
+                {
+                    var fileBytes = directoryElement.GetFileData();
+                    writer.Write(fileBytes.Length);
+                    writer.Write(fileBytes, 0, fileBytes.Length);
+                }
+            }
+
+            writer.Flush();
+            writer.BaseStream.Position = 0;            
+            writer.Close();
+        }
+
+        private void UnpackEncodedBundle()
+        {
+            // TODO:
+        }
     }
 }
