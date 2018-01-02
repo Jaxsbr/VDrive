@@ -16,6 +16,12 @@ namespace JJDev.VDrive.Core.Bundling
     public class BundleEngine : IBundleEngine
     {                
         public object Compress(string source, string destination, ICipher cipher)
+        {
+            var directoryManifest = new DirectoryManifest(source);
+            return null;
+        }
+        
+        public object _Compress(string source, string destination, ICipher cipher)
         {            
             var serializer = new BinarySerialization();
             var outStream = new MemoryStream();
@@ -31,7 +37,7 @@ namespace JJDev.VDrive.Core.Bundling
 
             return encodedData;
         }
-        
+
         public object Decompress(string source, string destination, ICipher cipher)
         {
             var serializer = new BinarySerialization();            
@@ -114,29 +120,37 @@ namespace JJDev.VDrive.Core.Bundling
 
         private void GenerateEncodedBundle(DirectoryManifest directoryManifest, BinaryWriter writer)
         {
+            // TODO:
+            // First encode and compress bytes
+            // Then calculate content length
+            // Then write length and data
+
             var serializer = new BinarySerialization();
             var directoryManifestBytes = serializer.Serialize(directoryManifest);
-
-            writer.Write(directoryManifestBytes.Length);
-            writer.Write(directoryManifestBytes, 0, directoryManifestBytes.Length);
+            
+            WriteBinaryData(writer, directoryManifestBytes);
 
             foreach (DirectoryElement directoryElement in directoryManifest.Elements)
             {
                 var directoryElementBytes = serializer.Serialize(directoryElement);
-                writer.Write(directoryElementBytes.Length);
-                writer.Write(directoryElementBytes, 0, directoryElementBytes.Length);
+                WriteBinaryData(writer, directoryElementBytes);                
 
                 if (!directoryElement.IsDirectory)
                 {
                     var fileBytes = directoryElement.GetFileData();
-                    writer.Write(fileBytes.Length);
-                    writer.Write(fileBytes, 0, fileBytes.Length);
+                    WriteBinaryData(writer, fileBytes);                    
                 }
             }
 
             writer.Flush();
             writer.BaseStream.Position = 0;            
             writer.Close();
+        }
+
+        private void WriteBinaryData(BinaryWriter writer, byte[] bytes, int position = 0)
+        {
+            writer.Write(bytes.Length);
+            writer.Write(bytes, position, bytes.Length);
         }
 
         private void UnpackEncodedBundle()
