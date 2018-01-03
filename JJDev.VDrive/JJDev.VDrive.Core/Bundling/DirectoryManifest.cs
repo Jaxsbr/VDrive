@@ -10,14 +10,14 @@ namespace JJDev.VDrive.Core.Bundling
   public class DirectoryManifest
   {
     public List<DirectoryElement> Elements { get; set; }
-    private string _sourceRootPath;
+    public string SourceRootPath { get; private set; }
 
 
     public DirectoryManifest(string sourceRootPath)
     {
-      _sourceRootPath = sourceRootPath;
+      SourceRootPath = sourceRootPath;
       Elements = new List<DirectoryElement>();
-      PopulateManifestElements(_sourceRootPath);
+      PopulateManifestElements(SourceRootPath);
     }
 
 
@@ -38,7 +38,7 @@ namespace JJDev.VDrive.Core.Bundling
       var folders = SystemIO.GetFolders(path);
       folders.ForEach(folder =>
       {
-        Elements.Add(new DirectoryElement(folder, false));
+        Elements.Add(new DirectoryElement(folder, true));
         PopulateManifestElements(folder);
       });
     }

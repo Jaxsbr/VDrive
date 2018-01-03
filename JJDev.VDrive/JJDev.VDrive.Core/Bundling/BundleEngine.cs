@@ -18,9 +18,24 @@ namespace JJDev.VDrive.Core.Bundling
         public object Compress(string source, string destination, ICipher cipher)
         {
             var directoryManifest = new DirectoryManifest(source);
+            using (var fileStream = new FileStream(destination, FileMode.Create, FileAccess.Write))
+            {
+                var writer = new BinaryWriter(fileStream);
+                GenerateEncodedBundle(cipher, directoryManifest, writer);
+            }            
             return null;
         }
         
+        public object Decompress(string source, string destination, ICipher cipher)
+        {
+            using (var fileStream = new FileStream(source, FileMode.Open, FileAccess.Read))
+            {
+                var reader = new BinaryReader(fileStream);
+                UnpackEncodedBundle(cipher, reader, destination);
+            }
+            return null;
+        }
+
         public object _Compress(string source, string destination, ICipher cipher)
         {            
             var serializer = new BinarySerialization();
@@ -38,7 +53,7 @@ namespace JJDev.VDrive.Core.Bundling
             return encodedData;
         }
 
-        public object Decompress(string source, string destination, ICipher cipher)
+        public object _Decompress(string source, string destination, ICipher cipher)
         {
             var serializer = new BinarySerialization();            
             var encodeData = File.ReadAllBytes(source);
@@ -118,27 +133,18 @@ namespace JJDev.VDrive.Core.Bundling
             writer.Close();
         }
 
-        private void GenerateEncodedBundle(DirectoryManifest directoryManifest, BinaryWriter writer)
+        private void GenerateEncodedBundle(ICipher cipher, DirectoryManifest directoryManifest, BinaryWriter writer)
         {
-            // TODO:
-            // First encode and compress bytes
-            // Then calculate content length
-            // Then write length and data
-
             var serializer = new BinarySerialization();
-            var directoryManifestBytes = serializer.Serialize(directoryManifest);
-            
-            WriteBinaryData(writer, directoryManifestBytes);
+            var directoryManifestBytes = serializer.Serialize(directoryManifest);            
+            WriteBinaryData(cipher, writer, directoryManifestBytes);
 
             foreach (DirectoryElement directoryElement in directoryManifest.Elements)
             {
-                var directoryElementBytes = serializer.Serialize(directoryElement);
-                WriteBinaryData(writer, directoryElementBytes);                
-
                 if (!directoryElement.IsDirectory)
                 {
                     var fileBytes = directoryElement.GetFileData();
-                    WriteBinaryData(writer, fileBytes);                    
+                    WriteBinaryData(cipher, writer, fileBytes);                    
                 }
             }
 
@@ -147,15 +153,45 @@ namespace JJDev.VDrive.Core.Bundling
             writer.Close();
         }
 
-        private void WriteBinaryData(BinaryWriter writer, byte[] bytes, int position = 0)
+        private void WriteBinaryData(ICipher cipher, BinaryWriter writer, byte[] bytes, int position = 0)
         {
-            writer.Write(bytes.Length);
-            writer.Write(bytes, position, bytes.Length);
+            var compressedData = CompressEngine.Compress(bytes);
+            var base64Data = Convert.ToBase64String(compressedData);
+            var encodedData = cipher.Encode(SymmetricCipherType.Aes, base64Data);
+
+            writer.Write(encodedData.Length);
+            writer.Write(encodedData, position, encodedData.Length);
         }
 
-        private void UnpackEncodedBundle()
+        private void UnpackEncodedBundle(ICipher cipher, BinaryReader reader, string destination)
         {
-            // TODO:
+            var serializer = new BinarySerialization();
+            var directoryManifestBytes = ReadBinaryData(cipher, reader);
+            var directoryManifest = serializer.Deserialize<DirectoryManifest>(directoryManifestBytes);
+
+            foreach (DirectoryElement directoryElement in directoryManifest.Elements)
+            {
+                var newPath = directoryElement.SourceFullPath.Replace(directoryManifest.SourceRootPath, destination);
+
+                if (directoryElement.IsDirectory && !Directory.Exists(newPath))
+                {
+                    Directory.CreateDirectory(newPath);
+                }
+                else
+                {
+                    var fileBytes = ReadBinaryData(cipher, reader);
+                    File.WriteAllBytes(newPath, fileBytes);
+                }
+            }
+        }
+
+        private byte[] ReadBinaryData(ICipher cipher, BinaryReader reader)
+        {
+            var length = reader.ReadInt32();
+            var encodedData = reader.ReadBytes(length);
+            var base64Data = cipher.Decode(SymmetricCipherType.Aes, encodedData);
+            var decompressedData = CompressEngine.Decompress(Convert.FromBase64String(base64Data));
+            return decompressedData;
         }
     }
 }
