@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bundling\DirectoryElement.cs" />
+    <Compile Include="Bundling\DirectoryManifest.cs" />
     <Compile Include="Ciphers\SymmetricAlgorithmCipher.cs" />
     <Compile Include="Ciphers\SymmetricCipherFactory.cs" />
     <Compile Include="Bundling\BundleEngine.cs" />
