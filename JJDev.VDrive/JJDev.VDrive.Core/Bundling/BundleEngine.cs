@@ -59,20 +59,20 @@ namespace JJDev.VDrive.Core.Bundling
 
         private void WriteBinaryData(ICipher cipher, BinaryWriter writer, byte[] bytes, int position = 0)
         {
-          // TODO:
-          // When large files are encountered +-250mb, we run out or memory.
-          // In an attempt to fix this issue, the logic was change to split the data stream in to chunks.
-          // Each chuck is compressed and encode and then written to the file stream.
-          // # This issue here is that we need to know the combined byte size after compression and encoding
-          // # before writting and of the actual file data.
-          // # Below code attempts to insert the total byte size afterwards, but this seems fail on decompile.
+            // TODO:
+            // When large files are encountered +-250mb, we run out of memory.
+            // In an attempt to fix this issue, the logic was changed to split the data stream in to chunks.
+            // Each chuck is compressed and encode and then written to the file stream.
+            // # This issue here is that we need to know the combined byte size after compression and encoding
+            // # before writting any of the actual file data.
+            // # The code attempts to insert the total byte size afterwards, but this seems fail on decompile.
 
 
-          var maxBufferSize = 20480;
-          var chunks = new List<byte[]>();
-          var rawBytesLength = bytes.Length;
-          var totalEncodedLength = 0;
-          var startPosition = writer.BaseStream.Position;
+            var maxBufferSize = 20480;
+            var chunks = new List<byte[]>();
+            var rawBytesLength = bytes.Length;
+            var totalEncodedLength = 0;
+            var startPosition = writer.BaseStream.Position;
 
             using (var stream = new MemoryStream(bytes))
             { 
