@@ -14,9 +14,10 @@ using JJDev.VDrive.Core.Compression;
 namespace JJDev.VDrive.Core.Bundling
 {
     public class BundleEngine : IBundleEngine
-    {                
+    {
         public delegate void StatusUpdateHandler(object obj, ProgressEventArgs args);
         public event StatusUpdateHandler ProgressChanged;
+        private readonly int _maxBufferSize = 1024 * 1024; // 1 mb
 
         public void WriteBundle(string source, string destination, ICipher cipher)
         {
@@ -25,34 +26,50 @@ namespace JJDev.VDrive.Core.Bundling
             {
                 var writer = new BinaryWriter(fileStream);
                 GenerateEncodedBundle(cipher, directoryManifest, writer);
-            }            
+            }
         }
 
         private void GenerateEncodedBundle(ICipher cipher, DirectoryManifest directoryManifest, BinaryWriter writer)
         {
-          var progressIndex = 0;
-          var serializer = new BinarySerialization();
-          var directoryManifestBytes = serializer.Serialize(directoryManifest);
-          WriteBinaryData(cipher, writer, directoryManifestBytes);
+            var progressIndex = 0;
+            var serializer = new BinarySerialization();
+            var directoryManifestBytes = serializer.Serialize(directoryManifest);
+            WriteBinaryData(cipher, writer, directoryManifestBytes);
 
-          foreach (DirectoryElement directoryElement in directoryManifest.Elements)
-          {
-            if (!directoryElement.IsDirectory)
+            foreach (DirectoryElement directoryElement in directoryManifest.Elements)
             {
-              var fileBytes = directoryElement.GetFileData();
-              WriteBinaryData(cipher, writer, fileBytes);
+                if (!directoryElement.IsDirectory)
+                {
+                    var fileBytes = directoryElement.GetFileData();
+                    WriteBinaryData(cipher, writer, fileBytes);
+                }
+
+                progressIndex++;
+                RaiseProgressUpdateEvent(progressIndex, directoryManifest.Elements.Count);
             }
 
-            progressIndex++;
-            RaiseProgressUpdateEvent(progressIndex, directoryManifest.Elements.Count);
-          }
-
-          writer.Flush();
-          writer.BaseStream.Position = 0;
-          writer.Close();
+            writer.Flush();
+            writer.BaseStream.Position = 0;
+            writer.Close();
         }
 
         private void WriteBinaryData(ICipher cipher, BinaryWriter writer, byte[] bytes, int position = 0)
+        {
+            if (bytes.Length > _maxBufferSize)
+            {
+                WriteLargeBinaryData(cipher, writer, bytes);
+                return;
+            }
+
+            var compressedData = CompressEngine.Compress(bytes);
+            var base64Data = Convert.ToBase64String(compressedData);
+            var encodedData = cipher.Encode(SymmetricCipherType.Aes, base64Data);
+
+            writer.Write(encodedData.Length);
+            writer.Write(encodedData, position, encodedData.Length);
+        }
+
+        private void WriteLargeBinaryData(ICipher cipher, BinaryWriter writer, byte[] bytes, int position = 0)
         {
             // TODO:
             // When large files are encountered +-250mb, we run out of memory.
@@ -70,41 +87,37 @@ namespace JJDev.VDrive.Core.Bundling
             // Unfortunatly we have to re generate the compressed and encoded chunks and write the to stream as we go.
             // Basically, we cannot mantain a masive collection of chunks or one massive byte array, thus writing as we itterate.
             // Downside | We do double processing on large files
-
-
-            var maxBufferSize = 20480;
-            var chunks = new List<byte[]>();
+                        
             var rawBytesLength = bytes.Length;
-            var totalEncodedLength = 0;
-            var startPosition = writer.BaseStream.Position;
+            var totalEncodedLength = 0;            
 
-            using (var stream = new MemoryStream(bytes))
-            { 
-                using (var reader = new BinaryReader(stream))
+            for (int i = 0; i < 2; i++)
+            {
+                if (i == 1) { writer.Write(totalEncodedLength); }
+
+                using (var stream = new MemoryStream(bytes))
                 {
-                    long remainingBytesLength = rawBytesLength;
-                    while (remainingBytesLength > 0)
+                    using (var reader = new BinaryReader(stream))
                     {
-                        var bufferSize = remainingBytesLength > maxBufferSize ? maxBufferSize : (int)remainingBytesLength;
-                        var buffer = new byte[bufferSize];
-                        reader.Read(buffer, 0, bufferSize);
+                        long remainingBytesLength = rawBytesLength;
+                        while (remainingBytesLength > 0)
+                        {
+                            var bufferSize = remainingBytesLength > _maxBufferSize ? _maxBufferSize : (int)remainingBytesLength;
+                            var buffer = new byte[bufferSize];
+                            reader.Read(buffer, 0, bufferSize);
 
-                        var compressedData = CompressEngine.Compress(buffer);
-                        var base64Data = Convert.ToBase64String(compressedData);
-                        var encodedData = cipher.Encode(SymmetricCipherType.Aes, base64Data);
+                            var compressedData = CompressEngine.Compress(buffer);
+                            var base64Data = Convert.ToBase64String(compressedData);
+                            var encodedData = cipher.Encode(SymmetricCipherType.Aes, base64Data);
+                            
+                            totalEncodedLength += bufferSize;
+                            remainingBytesLength = rawBytesLength - stream.Position;
 
-                        chunks.Add(encodedData);
-                        totalEncodedLength += bufferSize;
-                        remainingBytesLength = rawBytesLength - stream.Position;
-
-                        writer.Write(encodedData, 0, encodedData.Length);
+                            if (i == 1) { writer.Write(encodedData, 0, encodedData.Length); }
+                        }
                     }
-                }
-            }
-
-            writer.BaseStream.Position = startPosition;
-            writer.Write(totalEncodedLength);
-            writer.BaseStream.Seek(0, SeekOrigin.End);
+                } 
+            }            
         }
 
 

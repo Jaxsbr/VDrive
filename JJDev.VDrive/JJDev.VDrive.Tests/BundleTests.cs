@@ -67,7 +67,7 @@ namespace JJDev.VDrive.Tests
         {
             var sut = new BundleEngine();
             var cipher = Cipher;
-            sut.Compress(@"C:\test", DesktopPath + @"\enc.txt", cipher);
+            sut.WriteBundle(@"C:\test", DesktopPath + @"\enc.txt", cipher);
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace JJDev.VDrive.Tests
         {
             var sut = new BundleEngine();
             var cipher = Cipher;
-            sut.Decompress(DesktopPath + @"\enc.txt", DesktopPath + @"\testOutput", cipher);
+            sut.ReadBundle(DesktopPath + @"\enc.txt", DesktopPath + @"\testOutput", cipher);
         }
     }
 }
