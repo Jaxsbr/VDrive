@@ -20,6 +20,8 @@ namespace JJDev.VDrive.Core.Bundling
         // This means we can track how many directortyElements have been and still need to be processed.
         // Implement a mechanism for tracking and also raising progress update events.
 
+        public delegate void StatusUpdateHandler(object obj, ProgressEventArgs args);
+        public event StatusUpdateHandler ProgressChanged;
 
         public void WriteBundle(string source, string destination, ICipher cipher)
         {
@@ -33,6 +35,7 @@ namespace JJDev.VDrive.Core.Bundling
 
         private void GenerateEncodedBundle(ICipher cipher, DirectoryManifest directoryManifest, BinaryWriter writer)
         {
+          var progressIndex = 0;
           var serializer = new BinarySerialization();
           var directoryManifestBytes = serializer.Serialize(directoryManifest);
           WriteBinaryData(cipher, writer, directoryManifestBytes);
@@ -44,6 +47,9 @@ namespace JJDev.VDrive.Core.Bundling
               var fileBytes = directoryElement.GetFileData();
               WriteBinaryData(cipher, writer, fileBytes);
             }
+
+            progressIndex++;
+            RaiseProgressUpdateEvent(progressIndex, directoryManifest.Elements.Count);
           }
 
           writer.Flush();
@@ -73,6 +79,7 @@ namespace JJDev.VDrive.Core.Bundling
 
         private void UnpackEncodedBundle(ICipher cipher, BinaryReader reader, string destination)
         {
+            var progressIndex = 0;
             var serializer = new BinarySerialization();
             var directoryManifestBytes = ReadBinaryData(cipher, reader);
             var directoryManifest = serializer.Deserialize<DirectoryManifest>(directoryManifestBytes);
@@ -90,6 +97,9 @@ namespace JJDev.VDrive.Core.Bundling
                     var fileBytes = ReadBinaryData(cipher, reader);
                     File.WriteAllBytes(newPath, fileBytes);
                 }
+
+                progressIndex++;
+                RaiseProgressUpdateEvent(progressIndex, directoryManifest.Elements.Count);
             }
         }
 
@@ -100,6 +110,12 @@ namespace JJDev.VDrive.Core.Bundling
             var base64Data = cipher.Decode(SymmetricCipherType.Aes, encodedData);
             var decompressedData = CompressEngine.Decompress(Convert.FromBase64String(base64Data));
             return decompressedData;
+        }
+
+
+        private void RaiseProgressUpdateEvent(int progressIndex, int maxProgress)
+        {
+            // TODO: Calculate percentage
         }
     }
 }
