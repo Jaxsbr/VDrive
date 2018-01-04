@@ -15,11 +15,6 @@ namespace JJDev.VDrive.Core.Bundling
 {
     public class BundleEngine : IBundleEngine
     {                
-        // TODO: Progress updates
-        // While reading/writing bundles, the directoryElements to be processed are know to us.
-        // This means we can track how many directortyElements have been and still need to be processed.
-        // Implement a mechanism for tracking and also raising progress update events.
-
         public delegate void StatusUpdateHandler(object obj, ProgressEventArgs args);
         public event StatusUpdateHandler ProgressChanged;
 
@@ -66,6 +61,15 @@ namespace JJDev.VDrive.Core.Bundling
             // # This issue here is that we need to know the combined byte size after compression and encoding
             // # before writting any of the actual file data.
             // # The code attempts to insert the total byte size afterwards, but this seems fail on decompile.
+
+            // SOLUTION 1:
+            // As we expect majoraty of out files to not be large enough to cause the memory issue, we can
+            // perhaps create an exception logic flow and handle the normal case by writing the entire byte blob.
+            // To solve the above problem we can compress and encode each chunk as the code below does and sum the total length of all chunks.
+            // Then we have the total file byte size and we can write this to stream.
+            // Unfortunatly we have to re generate the compressed and encoded chunks and write the to stream as we go.
+            // Basically, we cannot mantain a masive collection of chunks or one massive byte array, thus writing as we itterate.
+            // Downside | We do double processing on large files
 
 
             var maxBufferSize = 20480;
