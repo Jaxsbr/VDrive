@@ -53,7 +53,7 @@ namespace JJDev.VDrive.Desktop
             var folderResult = folderBrowserDialog.ShowDialog();
             if (folderResult != System.Windows.Forms.DialogResult.OK) { return; }
 
-            sut.Decompress(openFileDialog.FileName, folderBrowserDialog.SelectedPath, cipher);
+            sut.ReadBundle(openFileDialog.FileName, folderBrowserDialog.SelectedPath, cipher);
 
             MessageBox.Show("Data decoded successfully!");
           }
@@ -77,13 +77,8 @@ namespace JJDev.VDrive.Desktop
 
           var saveResult = saveFileDialog.ShowDialog();
           if (!(bool)saveResult) { return; }
-
-
-          // TODO:
-          // Compress async
-          // Progress updates
-
-          sut.Compress(folderBrowserDialog.SelectedPath, saveFileDialog.FileName, cipher);
+          
+          sut.WriteBundle(folderBrowserDialog.SelectedPath, saveFileDialog.FileName, cipher);
 
           if (System.IO.File.Exists(saveFileDialog.FileName)) { MessageBox.Show("Data encoded successfully!"); }
           else { MessageBox.Show("Data encoding failed!"); }

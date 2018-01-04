@@ -9,7 +9,7 @@ namespace JJDev.VDrive.Core.Bundling
 {
   public interface IBundleEngine
   {
-    object Compress(string source, string destination, ICipher cipher);
-    object Decompress(string source, string destination, ICipher cipher);
+    void WriteBundle(string source, string destination, ICipher cipher);
+    void ReadBundle(string source, string destination, ICipher cipher);
   }
 }

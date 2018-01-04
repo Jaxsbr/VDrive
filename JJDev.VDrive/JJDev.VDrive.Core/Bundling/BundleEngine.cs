@@ -16,12 +16,12 @@ namespace JJDev.VDrive.Core.Bundling
     public class BundleEngine : IBundleEngine
     {                
         // TODO: Progress updates
-        // While bundling/unpacking(rename this btw) the directoryElements to be processed are know to us.
+        // While reading/writing bundles, the directoryElements to be processed are know to us.
         // This means we can track how many directortyElements have been and still need to be processed.
         // Implement a mechanism for tracking and also raising progress update events.
 
 
-        public object Compress(string source, string destination, ICipher cipher)
+        public void WriteBundle(string source, string destination, ICipher cipher)
         {
             var directoryManifest = new DirectoryManifest(source);
             using (var fileStream = new FileStream(destination, FileMode.Create, FileAccess.Write))
@@ -29,7 +29,6 @@ namespace JJDev.VDrive.Core.Bundling
                 var writer = new BinaryWriter(fileStream);
                 GenerateEncodedBundle(cipher, directoryManifest, writer);
             }            
-            return null;
         }
 
         private void GenerateEncodedBundle(ICipher cipher, DirectoryManifest directoryManifest, BinaryWriter writer)
@@ -63,15 +62,14 @@ namespace JJDev.VDrive.Core.Bundling
         }
 
 
-        public object Decompress(string source, string destination, ICipher cipher)
+        public void ReadBundle(string source, string destination, ICipher cipher)
+        {
+            using (var fileStream = new FileStream(source, FileMode.Open, FileAccess.Read))
             {
-                using (var fileStream = new FileStream(source, FileMode.Open, FileAccess.Read))
-                {
-                    var reader = new BinaryReader(fileStream);
-                    UnpackEncodedBundle(cipher, reader, destination);
-                }
-                return null;
+                var reader = new BinaryReader(fileStream);
+                UnpackEncodedBundle(cipher, reader, destination);
             }
+        }
 
         private void UnpackEncodedBundle(ICipher cipher, BinaryReader reader, string destination)
         {
