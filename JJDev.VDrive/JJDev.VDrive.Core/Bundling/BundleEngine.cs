@@ -15,6 +15,11 @@ namespace JJDev.VDrive.Core.Bundling
 {
     public class BundleEngine : IBundleEngine
     {                
+        // TODO: Progress updates
+        // While bundling/unpacking(rename this btw) the directoryElements to be processed are know to us.
+        // This means we can track how many directortyElements have been and still need to be processed.
+        // Implement a mechanism for tracking and also raising progress update events.
+
 
         public object Compress(string source, string destination, ICipher cipher)
         {
