@@ -18,9 +18,8 @@ using System.Windows.Shapes;
 
 namespace JJDev.VDrive.Desktop
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
+    public delegate void ProgressDelegate(int value);  
+
     public partial class MainWindow : Window
     {
         public MainWindow()
@@ -35,50 +34,101 @@ namespace JJDev.VDrive.Desktop
 
         
         private void SetProgressBar(int value)
+        {      
+            if (Dispatcher.CheckAccess())
+            {
+                CompletionProgressBar.Value = value;
+                CompletionProgressBar.Maximum = 100;                    
+            }
+            else
+            {
+                Dispatcher.Invoke(new ProgressDelegate(SetProgressBar), value);
+            }
+        }
+
+        private void BundleProcessCompleted()
         {
-            CompletionProgressBar.Value = value;
-            CompletionProgressBar.Maximum = 100;
+            if (Dispatcher.CheckAccess())
+            {
+                MessageBox.Show("Data decoded successfully!");
+                SetProgressBar(0);
+            }
+            else
+            {
+                Dispatcher.Invoke(delegate { BundleProcessCompleted(); });
+            }            
+        }
+
+        private void UnpackProcessCompleted(string filePath)
+        {
+            if (Dispatcher.CheckAccess())
+            {
+                if (System.IO.File.Exists(filePath)) { MessageBox.Show("Data encoded successfully!"); }
+                else { MessageBox.Show("Data encoding failed!"); }
+                SetProgressBar(0);
+            }
+            else
+            {
+                Dispatcher.Invoke(delegate { UnpackProcessCompleted(filePath); });
+            }     
+        }
+
+        private void Decode(string filePath, string folderPath)
+        {
+            var cipher = CipherKeys.GetCipher();
+            var bundleEngine = new BundleEngine();
+
+            bundleEngine.ProgressChanged += BundleEngine_ProgressChanged;
+            bundleEngine.ReadBundle(filePath, folderPath, cipher);            
+        }    
+
+        private void Encode(string folderPath, string filePath)
+        {            
+            var cipher = CipherKeys.GetCipher();
+            var bundleEngine = new BundleEngine();
+
+            bundleEngine.ProgressChanged += BundleEngine_ProgressChanged;
+            bundleEngine.WriteBundle(folderPath, filePath, cipher);
         }
 
 
         private void DecodeButton_Click(object sender, RoutedEventArgs e)
         {
             SetProgressBar(0);
-            var bundleEngine = new BundleEngine();
-            bundleEngine.ProgressChanged += BundleEngine_ProgressChanged;
-            var cipher = CipherKeys.GetCipher();
+
             var openFileDialog = new OpenFileDialog()
             {
               Filter = "Ecoded File |*.enc",
               Title = "Selected encoded file"
             };
+
             var folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog()
             {
               Description = "Select a output path to decode data to"
             };
-            
+
             var openResult = openFileDialog.ShowDialog();
             if (!(bool)openResult) { return; }
 
             var folderResult = folderBrowserDialog.ShowDialog();
             if (folderResult != System.Windows.Forms.DialogResult.OK) { return; }
 
-            bundleEngine.ReadBundle(openFileDialog.FileName, folderBrowserDialog.SelectedPath, cipher);
-
-            MessageBox.Show("Data decoded successfully!");
-            SetProgressBar(0);
-        }        
+            Task.Run(() => 
+            {
+              Decode(openFileDialog.FileName, folderBrowserDialog.SelectedPath);
+              BundleProcessCompleted();
+            });            
+        }
 
         private void EncodeButton_Click(object sender, RoutedEventArgs e)
         {
             SetProgressBar(0);
-            var bundleEngine = new BundleEngine();
-            bundleEngine.ProgressChanged += BundleEngine_ProgressChanged;
-            var cipher = CipherKeys.GetCipher();
+
             var folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog()
             {
               Description = "Select a path to the source data"
             };
+
             var saveFileDialog = new SaveFileDialog()
             {
               Filter = "Ecoded File |*.enc",
@@ -90,12 +140,12 @@ namespace JJDev.VDrive.Desktop
 
             var saveResult = saveFileDialog.ShowDialog();
             if (!(bool)saveResult) { return; }
-          
-            bundleEngine.WriteBundle(folderBrowserDialog.SelectedPath, saveFileDialog.FileName, cipher);
 
-            if (System.IO.File.Exists(saveFileDialog.FileName)) { MessageBox.Show("Data encoded successfully!"); }
-            else { MessageBox.Show("Data encoding failed!"); }
-            SetProgressBar(0);
+            Task.Run(() =>
+            {
+                Encode(folderBrowserDialog.SelectedPath, saveFileDialog.FileName);
+                UnpackProcessCompleted(saveFileDialog.FileName);
+            });            
         }  
 
         private void TestButton_Click(object sender, RoutedEventArgs e)
