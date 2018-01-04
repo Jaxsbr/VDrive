@@ -9,7 +9,7 @@ namespace JJDev.VDrive.Core.Bundling
 {
   public interface IBundleEngine
   {
-    Task WriteBundle(string source, string destination, ICipher cipher);
-    Task ReadBundle(string source, string destination, ICipher cipher);
+    void WriteBundle(string source, string destination, ICipher cipher);
+    void ReadBundle(string source, string destination, ICipher cipher);
   }
 }

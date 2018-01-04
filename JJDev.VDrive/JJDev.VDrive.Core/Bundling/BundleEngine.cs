@@ -59,12 +59,48 @@ namespace JJDev.VDrive.Core.Bundling
 
         private void WriteBinaryData(ICipher cipher, BinaryWriter writer, byte[] bytes, int position = 0)
         {
-          var compressedData = CompressEngine.Compress(bytes);
-          var base64Data = Convert.ToBase64String(compressedData);
-          var encodedData = cipher.Encode(SymmetricCipherType.Aes, base64Data);
+          // TODO:
+          // When large files are encountered +-250mb, we run out or memory.
+          // In an attempt to fix this issue, the logic was change to split the data stream in to chunks.
+          // Each chuck is compressed and encode and then written to the file stream.
+          // # This issue here is that we need to know the combined byte size after compression and encoding
+          // # before writting and of the actual file data.
+          // # Below code attempts to insert the total byte size afterwards, but this seems fail on decompile.
 
-          writer.Write(encodedData.Length);
-          writer.Write(encodedData, position, encodedData.Length);
+
+          var maxBufferSize = 20480;
+          var chunks = new List<byte[]>();
+          var rawBytesLength = bytes.Length;
+          var totalEncodedLength = 0;
+          var startPosition = writer.BaseStream.Position;
+
+            using (var stream = new MemoryStream(bytes))
+            { 
+                using (var reader = new BinaryReader(stream))
+                {
+                    long remainingBytesLength = rawBytesLength;
+                    while (remainingBytesLength > 0)
+                    {
+                        var bufferSize = remainingBytesLength > maxBufferSize ? maxBufferSize : (int)remainingBytesLength;
+                        var buffer = new byte[bufferSize];
+                        reader.Read(buffer, 0, bufferSize);
+
+                        var compressedData = CompressEngine.Compress(buffer);
+                        var base64Data = Convert.ToBase64String(compressedData);
+                        var encodedData = cipher.Encode(SymmetricCipherType.Aes, base64Data);
+
+                        chunks.Add(encodedData);
+                        totalEncodedLength += bufferSize;
+                        remainingBytesLength = rawBytesLength - stream.Position;
+
+                        writer.Write(encodedData, 0, encodedData.Length);
+                    }
+                }
+            }
+
+            writer.BaseStream.Position = startPosition;
+            writer.Write(totalEncodedLength);
+            writer.BaseStream.Seek(0, SeekOrigin.End);
         }
 
 
