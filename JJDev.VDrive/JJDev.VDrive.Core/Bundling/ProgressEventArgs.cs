@@ -13,7 +13,11 @@ namespace JJDev.VDrive.Core.Bundling
     {
       get
       {
-        if (_percentageCompleted < 0) { _percentageCompleted = _progressIndex / _maxProgress * 100; }
+        if (_percentageCompleted <= 0)
+        {
+          double percentage = _progressIndex / _maxProgress * 100;
+          _percentageCompleted = (int)Math.Round(percentage);
+        }
         return _percentageCompleted;
       }
     }

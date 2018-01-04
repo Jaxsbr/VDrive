@@ -33,9 +33,19 @@ namespace JJDev.VDrive.Desktop
             DecodeButton.Click += DecodeButton_Click;
         }
 
+        
+        private void SetProgressBar(int value)
+        {
+            CompletionProgressBar.Value = value;
+            CompletionProgressBar.Maximum = 100;
+        }
+
+
         private void DecodeButton_Click(object sender, RoutedEventArgs e)
         {
-            var sut = new BundleEngine();
+            SetProgressBar(0);
+            var bundleEngine = new BundleEngine();
+            bundleEngine.ProgressChanged += BundleEngine_ProgressChanged;
             var cipher = CipherKeys.GetCipher();
             var openFileDialog = new OpenFileDialog()
             {
@@ -53,36 +63,40 @@ namespace JJDev.VDrive.Desktop
             var folderResult = folderBrowserDialog.ShowDialog();
             if (folderResult != System.Windows.Forms.DialogResult.OK) { return; }
 
-            sut.ReadBundle(openFileDialog.FileName, folderBrowserDialog.SelectedPath, cipher);
+            bundleEngine.ReadBundle(openFileDialog.FileName, folderBrowserDialog.SelectedPath, cipher);
 
             MessageBox.Show("Data decoded successfully!");
-          }
+            SetProgressBar(0);
+        }        
 
         private void EncodeButton_Click(object sender, RoutedEventArgs e)
         {
-          var sut = new BundleEngine();
-          var cipher = CipherKeys.GetCipher();
-          var folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog()
-          {
-            Description = "Select a path to the source data"
-          };
-          var saveFileDialog = new SaveFileDialog()
-          {
-            Filter = "Ecoded File |*.enc",
-            Title = "Select and output path for encoded data"
-          };          
+            SetProgressBar(0);
+            var bundleEngine = new BundleEngine();
+            bundleEngine.ProgressChanged += BundleEngine_ProgressChanged;
+            var cipher = CipherKeys.GetCipher();
+            var folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog()
+            {
+              Description = "Select a path to the source data"
+            };
+            var saveFileDialog = new SaveFileDialog()
+            {
+              Filter = "Ecoded File |*.enc",
+              Title = "Select and output path for encoded data"
+            };          
 
-          var folderResult = folderBrowserDialog.ShowDialog();
-          if (folderResult != System.Windows.Forms.DialogResult.OK) { return; }
+            var folderResult = folderBrowserDialog.ShowDialog();
+            if (folderResult != System.Windows.Forms.DialogResult.OK) { return; }
 
-          var saveResult = saveFileDialog.ShowDialog();
-          if (!(bool)saveResult) { return; }
+            var saveResult = saveFileDialog.ShowDialog();
+            if (!(bool)saveResult) { return; }
           
-          sut.WriteBundle(folderBrowserDialog.SelectedPath, saveFileDialog.FileName, cipher);
+            bundleEngine.WriteBundle(folderBrowserDialog.SelectedPath, saveFileDialog.FileName, cipher);
 
-          if (System.IO.File.Exists(saveFileDialog.FileName)) { MessageBox.Show("Data encoded successfully!"); }
-          else { MessageBox.Show("Data encoding failed!"); }
-    }
+            if (System.IO.File.Exists(saveFileDialog.FileName)) { MessageBox.Show("Data encoded successfully!"); }
+            else { MessageBox.Show("Data encoding failed!"); }
+            SetProgressBar(0);
+        }  
 
         private void TestButton_Click(object sender, RoutedEventArgs e)
         {
@@ -101,5 +115,10 @@ namespace JJDev.VDrive.Desktop
             DriveMaster.Mount("z:", "C:\test");
             MessageBox.Show("Z  Mounted!");
         }
-    }
+
+        private void BundleEngine_ProgressChanged(object obj, ProgressEventArgs args)
+        {
+            SetProgressBar(args.PercentageCompleted);
+        }
+  }
 }

@@ -115,7 +115,8 @@ namespace JJDev.VDrive.Core.Bundling
 
         private void RaiseProgressUpdateEvent(int progressIndex, int maxProgress)
         {
-            // TODO: Calculate percentage
+            var progressEventArgs = new ProgressEventArgs(progressIndex, maxProgress);
+            ProgressChanged?.Invoke(this, progressEventArgs);
         }
     }
 }
