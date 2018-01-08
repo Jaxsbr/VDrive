@@ -76,17 +76,14 @@ namespace JJDev.VDrive.Core.Bundling
             // In an attempt to fix this issue, the logic was changed to split the data stream in to chunks.
             // Each chuck is compressed and encode and then written to the file stream.
             // # This issue here is that we need to know the combined byte size after compression and encoding
-            // # before writting any of the actual file data.
-            // # The code attempts to insert the total byte size afterwards, but this seems fail on decompile.
+            // # before writting any of the actual file data.            
 
             // SOLUTION 1:
-            // As we expect majoraty of out files to not be large enough to cause the memory issue, we can
-            // perhaps create an exception logic flow and handle the normal case by writing the entire byte blob.
-            // To solve the above problem we can compress and encode each chunk as the code below does and sum the total length of all chunks.
-            // Then we have the total file byte size and we can write this to stream.
-            // Unfortunatly we have to re generate the compressed and encoded chunks and write the to stream as we go.
-            // Basically, we cannot mantain a masive collection of chunks or one massive byte array, thus writing as we itterate.
-            // Downside | We do double processing on large files
+            // We expect the majority of files to not be large enough to cause the memory issue.
+            // Thus we have this method handle the expection(large files).            
+            // Due to needing the total file byte size after compression and encoding, we perform the logic
+            // twice, only writing to file on the second run.
+            // We accept the performance knock temporarily as this should only be the exception.
                         
             var rawBytesLength = bytes.Length;
             var totalEncodedLength = 0;            
@@ -141,30 +138,55 @@ namespace JJDev.VDrive.Core.Bundling
             {
                 var newPath = directoryElement.SourceFullPath.Replace(directoryManifest.SourceRootPath, destination);
 
-                if (directoryElement.IsDirectory && !Directory.Exists(newPath))
-                {
-                    Directory.CreateDirectory(newPath);
-                }
-                else
-                {
-                    var fileBytes = ReadBinaryData(cipher, reader);
-                    File.WriteAllBytes(newPath, fileBytes);
-                }
+                if (directoryElement.IsDirectory && !Directory.Exists(newPath)) { Directory.CreateDirectory(newPath); }
+                else { WriteFileData(cipher, reader, newPath); }
 
                 progressIndex++;
                 RaiseProgressUpdateEvent(progressIndex, directoryManifest.Elements.Count);
             }
         }
 
+        private void WriteFileData(ICipher cipher, BinaryReader reader, string filePath)
+        {
+            var length = reader.ReadInt32();
+            if (length > _maxBufferSize) { WriteChunkedFileData(cipher, reader, filePath, length); }
+            else { File.WriteAllBytes(filePath, ReadBinaryDataFromLength(cipher, reader, length)); }            
+        }
+
+        private void WriteChunkedFileData(ICipher cipher, BinaryReader reader, string filePath, int length)
+        {
+            var remainingLength = length;
+            using (var fileStream = new FileStream(filePath, FileMode.Append, FileAccess.Write))
+            {
+                while (remainingLength > 0)
+                {
+                    var bufferSize = remainingLength > _maxBufferSize ? _maxBufferSize : (int)remainingLength;
+                    var buffer = new byte[bufferSize];
+                    reader.Read(buffer, 0, bufferSize);
+
+                    var base64DecodedData = cipher.Decode(SymmetricCipherType.Aes, buffer);
+                    var decodedData = Convert.FromBase64String(base64DecodedData);
+                    var decompressedData = CompressEngine.Decompress(decodedData);
+
+                    remainingLength -= bufferSize;
+                    fileStream.Write(decompressedData, 0, decompressedData.Length);
+                }
+            }
+        }
+
         private byte[] ReadBinaryData(ICipher cipher, BinaryReader reader)
         {
             var length = reader.ReadInt32();
+            return ReadBinaryDataFromLength(cipher, reader, length);
+        }
+
+        private byte[] ReadBinaryDataFromLength(ICipher cipher, BinaryReader reader, int length)
+        {            
             var encodedData = reader.ReadBytes(length);
             var base64Data = cipher.Decode(SymmetricCipherType.Aes, encodedData);
             var decompressedData = CompressEngine.Decompress(Convert.FromBase64String(base64Data));
             return decompressedData;
-        }
-
+        }  
 
         private void RaiseProgressUpdateEvent(int progressIndex, int maxProgress)
         {
