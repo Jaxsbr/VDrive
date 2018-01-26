@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.1-beta3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="NSubstitute, Version=1.9.2.0, Culture=neutral, PublicKeyToken=92dd2e9066daa5ca, processorArchitecture=MSIL">
       <HintPath>..\packages\NSubstitute.1.9.2.0\lib\net45\NSubstitute.dll</HintPath>
     </Reference>
@@ -60,6 +63,7 @@
     <Compile Include="Compression\CompressEngine.cs" />
     <Compile Include="Serialization\BinarySerialization.cs" />
     <Compile Include="Serialization\ISerialization.cs" />
+    <Compile Include="Serialization\JsonSerialization.cs" />
     <Compile Include="Serialization\ProtoBufferSerialization.cs" />
     <Compile Include="Serialization\XmlSerialization.cs" />
     <Compile Include="SystemIO.cs" />
