@@ -22,13 +22,13 @@ namespace JJDev.VDrive.Core.Bundling
             using (var fileStream = new FileStream(destination, FileMode.Create, FileAccess.Write))
             {
                 var writer = new BinaryWriter(fileStream);
-                GenerateEncodedBundle(cipher, directoryManifest, writer);
-            }            
-            return null;
+                GenerateEncodedBundle(cipher, directoryManifest, writer);                
+            }
+            return null;                     
         }
 
         private void GenerateEncodedBundle(ICipher cipher, DirectoryManifest directoryManifest, BinaryWriter writer)
-        {
+        {          
           var serializer = new BinarySerialization();
           var directoryManifestBytes = serializer.Serialize(directoryManifest);
           WriteBinaryData(cipher, writer, directoryManifestBytes);

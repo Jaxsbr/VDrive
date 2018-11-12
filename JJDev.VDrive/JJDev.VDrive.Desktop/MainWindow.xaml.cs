@@ -83,8 +83,8 @@ namespace JJDev.VDrive.Desktop
           // Compress async
           // Progress updates
 
-          sut.Compress(folderBrowserDialog.SelectedPath, saveFileDialog.FileName, cipher);
-
+          var result = sut.Compress(folderBrowserDialog.SelectedPath, saveFileDialog.FileName, cipher);
+            
           if (System.IO.File.Exists(saveFileDialog.FileName)) { MessageBox.Show("Data encoded successfully!"); }
           else { MessageBox.Show("Data encoding failed!"); }
     }

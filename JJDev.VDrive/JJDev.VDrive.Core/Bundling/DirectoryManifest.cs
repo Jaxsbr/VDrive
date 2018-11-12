@@ -29,8 +29,16 @@ namespace JJDev.VDrive.Core.Bundling
 
     private void PopulateManifestFileElements(string path)
     {
+      System.IO.FileInfo fileInfo;
       var files = SystemIO.GetFiles(path);
-      files.ForEach(file => { Elements.Add(new DirectoryElement(file, false)); });
+      files.ForEach(file => 
+      {
+        fileInfo = new System.IO.FileInfo(file);
+        if (fileInfo.Length < 20000000)
+        {
+          Elements.Add(new DirectoryElement(file, false));
+        }
+      });
     }
 
     private void PopulateManifestFolderElements(string path)
