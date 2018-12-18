@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
+using JJDev.VDrive.Core.VirtualDrive;
 
 namespace JJDev.VDrive.Core
 {
@@ -20,15 +21,17 @@ namespace JJDev.VDrive.Core
 
         public static void Mount(string driveLetter, string drivePath)
         {
-            if (!IsDriveLetterValid(driveLetter)) { return; }
-            if (!DefineDosDevice(0, driveLetter, drivePath)) { throw new Win32Exception(); }
+            //if (!IsDriveLetterValid(driveLetter)) { return; }
+            //if (!DefineDosDevice(0, driveLetter, drivePath)) { throw new Win32Exception(); }
+            VirtualDriveManager.Mount(drivePath, driveLetter);
         }
 
         public static void Dismount(string driveLetter)
         {            
-            if (!IsDriveLetterValid(driveLetter)) { return; }
-            if (!IsDriveInUse(driveLetter)) { return; }                       
-            if (!DefineDosDevice(2, driveLetter, null)) { throw new Win32Exception(); }            
+            //if (!IsDriveLetterValid(driveLetter)) { return; }
+            //if (!IsDriveInUse(driveLetter)) { return; }                       
+            //if (!DefineDosDevice(2, driveLetter, null)) { throw new Win32Exception(); }    
+            VirtualDriveManager.Dismount(driveLetter);
         }
 
         private static string SanitizeDriveLetter(char letter) {

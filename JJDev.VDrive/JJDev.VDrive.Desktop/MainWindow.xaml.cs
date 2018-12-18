@@ -23,6 +23,9 @@ namespace JJDev.VDrive.Desktop
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly string _letter = "K";
+
+
         public MainWindow()
         {
             InitializeComponent();
@@ -33,7 +36,7 @@ namespace JJDev.VDrive.Desktop
             DecodeButton.Click += DecodeButton_Click;
         }
 
-        private void DecodeButton_Click(object sender, RoutedEventArgs e)
+        private async void DecodeButton_Click(object sender, RoutedEventArgs e)
         {
             var sut = new BundleEngine();
             var cipher = CipherKeys.GetCipher();
@@ -53,12 +56,12 @@ namespace JJDev.VDrive.Desktop
             var folderResult = folderBrowserDialog.ShowDialog();
             if (folderResult != System.Windows.Forms.DialogResult.OK) { return; }
 
-            sut.Decompress(openFileDialog.FileName, folderBrowserDialog.SelectedPath, cipher);
+            await sut.Decompress(openFileDialog.FileName, folderBrowserDialog.SelectedPath, cipher);
 
             MessageBox.Show("Data decoded successfully!");
           }
 
-        private void EncodeButton_Click(object sender, RoutedEventArgs e)
+        private async void EncodeButton_Click(object sender, RoutedEventArgs e)
         {
           var sut = new BundleEngine();
           var cipher = CipherKeys.GetCipher();
@@ -83,7 +86,7 @@ namespace JJDev.VDrive.Desktop
           // Compress async
           // Progress updates
 
-          var result = sut.Compress(folderBrowserDialog.SelectedPath, saveFileDialog.FileName, cipher);
+          var result = await sut.Compress(folderBrowserDialog.SelectedPath, saveFileDialog.FileName, cipher);
             
           if (System.IO.File.Exists(saveFileDialog.FileName)) { MessageBox.Show("Data encoded successfully!"); }
           else { MessageBox.Show("Data encoding failed!"); }
@@ -91,20 +94,28 @@ namespace JJDev.VDrive.Desktop
 
         private void TestButton_Click(object sender, RoutedEventArgs e)
         {
-            var result = DriveMaster.IsDriveInUse("z:");
-            MessageBox.Show($"Z  in use: {result}");
-        }
+            var result = DriveMaster.IsDriveInUse(_letter);
+            MessageBox.Show($"{_letter}  in use: {result}");
+        }        
+
 
         private void DismountButton_Click(object sender, RoutedEventArgs e)
         {
-            DriveMaster.Dismount("z:");
-            MessageBox.Show("Z  Dismounted!");
+            DriveMaster.Dismount(_letter);
+            MessageBox.Show($"{_letter}  Dismounted!");
         }
 
         private void MountButton_Click(object sender, RoutedEventArgs e)
         {
-            DriveMaster.Mount("z:", "C:\test");
-            MessageBox.Show("Z  Mounted!");
+            var folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog()
+            {
+              Description = "Select a physical path to map your virtual drive to"
+            };
+            var folderResult = folderBrowserDialog.ShowDialog();
+            if (folderResult != System.Windows.Forms.DialogResult.OK) { return; }
+            var unc = UNCHelper.GetUNCPathFromPath(folderBrowserDialog.SelectedPath);
+            DriveMaster.Mount(_letter, unc);
+            MessageBox.Show($"{_letter}  Mounted!");
         }
     }
 }

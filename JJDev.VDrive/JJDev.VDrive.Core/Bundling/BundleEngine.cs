@@ -16,29 +16,29 @@ namespace JJDev.VDrive.Core.Bundling
     public class BundleEngine : IBundleEngine
     {                
 
-        public object Compress(string source, string destination, ICipher cipher)
+        public async Task<object> Compress(string source, string destination, ICipher cipher)
         {
             var directoryManifest = new DirectoryManifest(source);
             using (var fileStream = new FileStream(destination, FileMode.Create, FileAccess.Write))
             {
                 var writer = new BinaryWriter(fileStream);
-                GenerateEncodedBundle(cipher, directoryManifest, writer);                
+                await GenerateEncodedBundle(cipher, directoryManifest, writer);                
             }
             return null;                     
         }
 
-        private void GenerateEncodedBundle(ICipher cipher, DirectoryManifest directoryManifest, BinaryWriter writer)
+        private async Task GenerateEncodedBundle(ICipher cipher, DirectoryManifest directoryManifest, BinaryWriter writer)
         {          
           var serializer = new BinarySerialization();
           var directoryManifestBytes = serializer.Serialize(directoryManifest);
-          WriteBinaryData(cipher, writer, directoryManifestBytes);
+          await WriteBinaryData(cipher, writer, directoryManifestBytes);
 
           foreach (DirectoryElement directoryElement in directoryManifest.Elements)
           {
             if (!directoryElement.IsDirectory)
             {
               var fileBytes = directoryElement.GetFileData();
-              WriteBinaryData(cipher, writer, fileBytes);
+              await WriteBinaryData(cipher, writer, fileBytes);
             }
           }
 
@@ -47,31 +47,31 @@ namespace JJDev.VDrive.Core.Bundling
           writer.Close();
         }
 
-        private void WriteBinaryData(ICipher cipher, BinaryWriter writer, byte[] bytes, int position = 0)
+        private async Task WriteBinaryData(ICipher cipher, BinaryWriter writer, byte[] bytes, int position = 0)
         {
-          var compressedData = CompressEngine.Compress(bytes);
+          var compressedData = await CompressEngine.CompressAsync(bytes);
           var base64Data = Convert.ToBase64String(compressedData);
-          var encodedData = cipher.Encode(SymmetricCipherType.Aes, base64Data);
+          var encodedData = await cipher.Encode(SymmetricCipherType.Aes, base64Data);
 
           writer.Write(encodedData.Length);
           writer.Write(encodedData, position, encodedData.Length);
         }
 
 
-        public object Decompress(string source, string destination, ICipher cipher)
+        public async Task<object> Decompress(string source, string destination, ICipher cipher)
+        {
+            using (var fileStream = new FileStream(source, FileMode.Open, FileAccess.Read))
             {
-                using (var fileStream = new FileStream(source, FileMode.Open, FileAccess.Read))
-                {
-                    var reader = new BinaryReader(fileStream);
-                    UnpackEncodedBundle(cipher, reader, destination);
-                }
-                return null;
+                var reader = new BinaryReader(fileStream);
+                await UnpackEncodedBundle(cipher, reader, destination);
             }
+            return null;
+        }
 
-        private void UnpackEncodedBundle(ICipher cipher, BinaryReader reader, string destination)
+        private async Task UnpackEncodedBundle(ICipher cipher, BinaryReader reader, string destination)
         {
             var serializer = new BinarySerialization();
-            var directoryManifestBytes = ReadBinaryData(cipher, reader);
+            var directoryManifestBytes = await ReadBinaryData(cipher, reader);
             var directoryManifest = serializer.Deserialize<DirectoryManifest>(directoryManifestBytes);
 
             foreach (DirectoryElement directoryElement in directoryManifest.Elements)
@@ -84,18 +84,18 @@ namespace JJDev.VDrive.Core.Bundling
                 }
                 else
                 {
-                    var fileBytes = ReadBinaryData(cipher, reader);
+                    var fileBytes = await ReadBinaryData(cipher, reader);
                     File.WriteAllBytes(newPath, fileBytes);
                 }
             }
         }
 
-        private byte[] ReadBinaryData(ICipher cipher, BinaryReader reader)
+        private async Task<byte[]> ReadBinaryData(ICipher cipher, BinaryReader reader)
         {
             var length = reader.ReadInt32();
             var encodedData = reader.ReadBytes(length);
-            var base64Data = cipher.Decode(SymmetricCipherType.Aes, encodedData);
-            var decompressedData = CompressEngine.Decompress(Convert.FromBase64String(base64Data));
+            var base64Data = await cipher.Decode(SymmetricCipherType.Aes, encodedData);
+            var decompressedData = await CompressEngine.Decompress(Convert.FromBase64String(base64Data));
             return decompressedData;
         }
     }
